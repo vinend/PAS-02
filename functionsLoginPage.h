@@ -4,14 +4,35 @@
 #include <conio.h>
 #include "struct.h"
 
+
+void createUser() {
+    int trigger = 0;
+    user newUser;
+
+    printf("Create GamerTag: "); scanf("%s", &newUser.gamerTag);
+    flushInput();
+
+    do {
+
+    } while(trigger == 0); 
+
+    printf("Create Password: "); scanf("%s", &newUser.password);
+
+}
+
+void loginUser() {
+
+}
+
 void loginPageMenu() {
 
-    int pilihan;
+    int pilihan, trigger = 0;
 
+    do {
     printf(" __      _____________.____   _________  ________      _____  ___________            __________________     \n");
     printf("/  \    /  \_   _____/|    |  \_   ___ \ \_____  \    /     \ \_   _____/           \__    ___/\_____ \     \n");
     printf("\   \/\/   /|    __)_ |    |  /    \  \/  /   |   \  /  \ /  \ |    __)_              |    |    /   |  \    \n");
-    printf(" \        / |        \|    |__\     \____/    |    \/    Y    \|        \             |    |   /    |    \  \n");
+    printf(" \        / |        \|    |__\     \____/    |    \/    Y    \|        \             |    |   /    |   \  \ n");
     printf("  \__/\  / /_______  /|_______ \______  /\_______  /\____|__  /_______  /             |____|   \_______  /  \n");
     printf("       \/          \/         \/      \/         \/         \/        \/                               \/   \n");
     printf("\n\n");
@@ -37,6 +58,17 @@ void loginPageMenu() {
     printf(" +-----+-------------------------------------------+\n");
     printf(" |  3  | Exit Program                              |\n");
     printf(" +-----+-------------------------------------------+\n");
+    printf("Pilih Opsi: "); scanf("%d", &pilihan);
 
+    switch(pilihan) {
+        case 1 :
+
+        case 2 :
+
+        case 3 :
+
+        default :
+    }
+    } while(trigger == 0);
 
 }
