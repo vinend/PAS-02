@@ -7,16 +7,19 @@
 
 void createUser() {
     int trigger = 0;
-    user newUser;
+    char buffer[100];
+    user playerLogin;
 
-    printf("Create GamerTag: "); scanf("%s", &newUser.gamerTag);
+    user *playerLogin = (user*)malloc(sizeof(user));
+
+    printf("Create GamerTag: "); scanf("%s", &playerLogin.gamerTag);
     flushInput();
 
     do {
-
+        printf("Suggest Password? Yes / No"); scanf("%s", &buffer); 
     } while(trigger == 0); 
 
-    printf("Create Password: "); scanf("%s", &newUser.password);
+    printf("Create Password: "); scanf("%s", &playerLogin.password);
 
 }
 
