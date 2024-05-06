@@ -182,6 +182,9 @@ int main() {
             break;
 
             default :
+            system("cls"); 
+            printf("Input Tidak Benar"); 
+            getch();
             break;
         }
     } while(trigger == 0);
