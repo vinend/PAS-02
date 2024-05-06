@@ -5,51 +5,121 @@
 #include "struct.h"
 
 
-void createUser() {
-    int trigger = 0;
-    char buffer[100];
-    user playerLogin;
+void flushInput() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF) {}
+}
 
-    user *playerLogin = (user*)malloc(sizeof(user));
+void randomPassGen(char *pass, int length) {
+    char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    srand(time(NULL));
+    for (int i = 0; i < length; i++) {
+        int key = rand() % (int)(sizeof(charset) - 1);
+        pass[i] = charset[key];
+    }
+    pass[length] = '\0';
+}
 
-    printf("Create GamerTag: "); scanf("%s", &playerLogin.gamerTag);
+void createUser(user **playerLogin) {
+    user *newUser = (user*)malloc(sizeof(user));
+    if (newUser == NULL) {
+        printf("Memory allocation failed.\n");
+        return;
+    }
+
+    system("cls");
+
+    printf("Create GamerTag: ");
+    scanf("%99s", newUser->gamerTag);
     flushInput();
 
+    system("cls");
+
+    char buffer[10];
+    int trigger = 0;
     do {
-        printf("Suggest Password? Yes / No"); scanf("%s", &buffer); 
-    } while(trigger == 0); 
+        printf("Suggest Password? (Yes/No): ");
+        scanf("%9s", buffer);
+        flushInput();
 
-    printf("Create Password: "); scanf("%s", &playerLogin.password);
+        if (strcmp(buffer, "Yes") == 0) {
+            randomPassGen(newUser->password, 10); 
+            printf("Your suggested password is: %s\n", newUser->password);
+            getch(); system("cls");
+            printf("Create Password: ");
+            scanf("%99s", newUser->password);
+            trigger = 1;
+        } else if (strcmp(buffer, "No") == 0) {
+            system("cls");
+            printf("Create Password: ");
+            scanf("%99s", newUser->password);
+            trigger = 1;
+        } else {
+            printf("Invalid input. Please type 'Yes' or 'No'.\n");
+        }
+    } while (trigger == 0);
+
+    system("cls");
+    
+    newUser->games = NULL;
+    *playerLogin = newUser; 
+}
+
+loginUser(user **player) {
+
+    int trigger = 0;
+    int found;
+    char bufferUsername[100];
+    char bufferPassword[100];
+
+    do {
+
+    printf("||         USER LOGIN PAGE         ||\n");
+    printf("Enter Username  : "); scanf("%s", &bufferUsername);
+    printf("Enter Password  : "); scanf("%s", &bufferPassword);
+
+    while(current !=NULL) {
+        if(strcmp(bufferUsername, player[i]->gamerTag) == 0 && strcmp(bufferPassword, player[i]->password) == 0) {
+            printf("Login Succesful!");
+            found = 1;
+            break;
+        }
+
+        i++;
+    }
+
+    if(found == 1) {
+        
+    }
+
+    else {
+        printf("We couldn't find your username  / The password is wrong\n You have 3 attempts left");
+        trigger++;
+    }
+
+    system("cls");
+
+    } while(trigger == 3);
 
 }
 
-void loginUser() {
-
-}
-
-void loginPageMenu() {
+void loginPageMenu(user **player) {
 
     int pilihan, trigger = 0;
 
-    do {
-    printf(" __      _____________.____   _________  ________      _____  ___________            __________________     \n");
-    printf("/  \    /  \_   _____/|    |  \_   ___ \ \_____  \    /     \ \_   _____/           \__    ___/\_____ \     \n");
-    printf("\   \/\/   /|    __)_ |    |  /    \  \/  /   |   \  /  \ /  \ |    __)_              |    |    /   |  \    \n");
-    printf(" \        / |        \|    |__\     \____/    |    \/    Y    \|        \             |    |   /    |   \  \ n");
-    printf("  \__/\  / /_______  /|_______ \______  /\_______  /\____|__  /_______  /             |____|   \_______  /  \n");
-    printf("       \/          \/         \/      \/         \/         \/        \/                               \/   \n");
-    printf("\n\n");
-    printf("  ________    _____      _____  ___________            .____    ._______________________    _____ _______________.___. \n");
-    printf(" /  _____/   /  _  \    /     \ \_   _____/            |    |   |   \______   \______   \  /  _  \\______   \__  |   | \n");
-    printf("/   \  ___  /  /_\  \  /  \ /  \ |    __)_             |    |   |   ||    |  _/|       _/ /  /_\  \|       _//   |   | \n");
-    printf("\    \_\  \/    |    \/    Y    \|        \            |    |___|   ||    |   \|    |   \/    |    \    |   \\____   | \n");
-    printf(" \______  /\____|__  /\____|__  /_______  /            |_______ \___||______  /|____|_  /\____|__  /____|_  // ______| \n");
-    printf("        \/         \/         \/        \/                     \/           \/        \/         \/       \/ \/        \n");
-
-    printf("\n\nPress Any Button to Continue\n");
+    printf(" _    _      _                            _____     \n");
+    printf("| |  | |    | |                          |_   _|    \n");
+    printf("| |  | | ___| | ___ ___  _ __ ___   ___    | |      \n");
+    printf("| |/| |/ _ / |/ __/ _ /| '_ ` _ / / _ /    | |/ _   \n");
+    printf("/  //  /  __/ | (_| (_) | | | | | |  __/   | | (_) |\n");
+    printf(" //  // /___|_|/___/___/|_| |_| |_|/___|   /_//___/ \n");
+    printf("                The Game Library                    \n");
+    printf("         Press Any Button to Continue               \n");
     getch();
     system("cls");
 
+
+    do {
     printf(" +-------------------------------------------------+\n");
     printf(" |          SELAMAT DATANG DI GAME LIBRARY         |\n");
     printf(" +-------------------------------------------------+\n");
@@ -64,13 +134,17 @@ void loginPageMenu() {
     printf("Pilih Opsi: "); scanf("%d", &pilihan);
 
     switch(pilihan) {
-        case 1 :
+        case 1 : loginUser(player);
+        break;
 
-        case 2 :
+        case 2 : createUser(player);
+        break;
 
-        case 3 :
+        case 3 : trigger = 1;
+        break;
 
-        default :
+        default : printf("Please input the correct value!");
+        break;
     }
     } while(trigger == 0);
 
