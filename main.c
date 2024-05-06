@@ -12,12 +12,45 @@
 #include <string.h>
 #include <conio.h>
 #include <time.h>
+#include "struct.h"
+#include "Data.h"
 
 int main() {
+    int pilihan, trigger;
+
     user *player = NULL;
 
     loginPageMenu(&player);
 
- return 0;
+    do {
+        printf(" +-------------------------------------------------+\n");
+        printf(" |          SELAMAT DATANG DI GAME LIBRARY         |\n");
+        printf(" +-------------------------------------------------+\n");
+        printf(" | No. |              OPSI                         |\n");
+        printf(" +-----+-------------------------------------------+\n");
+        printf(" |  1  | Tambahkan Data                            |\n");
+        printf(" +-----+-------------------------------------------+\n");
+        printf(" |  2  | Lihat Data                                |\n");
+        printf(" +-----+-------------------------------------------+\n");
+        printf(" |  3  | Exit Program                              |\n");
+        printf(" +-----+-------------------------------------------+\n");
+        printf("Pilih Opsi: "); scanf("%d", &pilihan);
+
+        switch(pilihan) {
+            case 1 : TambahData(&player);
+            break;
+
+            case 2 : TampilkanData(player);
+            break;
+
+            case 3 : 
+            break;
+
+            default :
+            break;
+        }
+    } while(trigger == 0);
+
+    return 0;
 
 }

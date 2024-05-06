@@ -1,7 +1,7 @@
 #ifndef STRUCTCUSTOM
 #define STRUCTCUSTOM
 
-typedef struct{
+struct videoGames{
     char title[100];
     char genre[100];
     char desc[1000];
@@ -11,12 +11,18 @@ typedef struct{
     int gameKey;
     struct videoGames* next;
 
-} videoGames;
+};
 
-typedef struct{
+typedef struct videoGames NodeGames;
+
+typedef NodeGames *GamesPtr;
+
+struct User{
     char gamerTag[100];
     char password[100];
-    struct videoGames; 
-} user;
+    GamesPtr Games; 
+};
+
+typedef struct User user;
 
 #endif
