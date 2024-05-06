@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "functionsloginpage.h": "c"
+        "functionsloginpage.h": "c",
+        "stdio.h": "c"
     }
 }
