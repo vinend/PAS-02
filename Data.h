@@ -13,6 +13,9 @@ void pilihSearch(user **player, int jumlahData);
 void sortingRating(user **player, int jumlahData);
 void sortingHarga(user **player, int jumlahData);
 void searchingString(user **player, char* namaDicari, int i);
+void MergeSort(user **player, int pilihan);
+GamesPtr SortedMerge(GamesPtr a, GamesPtr b, int pilihan);
+void FrontBackSplit(GamesPtr source, GamesPtr* frontRef, GamesPtr* backRef);
 
 void readFromFile(user **players, int *numPlayers) {
     FILE *file = fopen("players.txt", "r");
@@ -251,8 +254,7 @@ GamesPtr SortedMerge(GamesPtr a, GamesPtr b, int pilihan)
     and return the two lists using the reference parameters.
     If the length is odd, the extra node should go in the front list.
     Uses the fast/slow pointer strategy. */
-void FrontBackSplit(GamesPtr source,
-                    GamesPtr* frontRef, GamesPtr* backRef)
+void FrontBackSplit(GamesPtr source, GamesPtr* frontRef, GamesPtr* backRef)
 {
     GamesPtr fast;
     GamesPtr slow;
