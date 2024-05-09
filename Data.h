@@ -16,8 +16,10 @@ void TampilkanData(user **player){
     {
         printf("|%-2d\t%-20s\t%11s\t%9s\t%9d\t%11d\n", i+1, (*player)->Games->title, (*player)->Games->publisher, (*player)->Games->genre, (*player)->Games->price, (*player)->Games->rating);
     }
+    printf("|_______________________________________________________________________________________________|\n");
 
     do {
+        system("cls");
         printf(" +-------------------------------------------------+\n");
         printf(" |          SELAMAT DATANG DI GAME LIBRARY         |\n");
         printf(" +-------------------------------------------------+\n");
@@ -39,7 +41,9 @@ void TampilkanData(user **player){
             break;
 
             default :
-            
+            system("cls"); 
+            printf("Input Tidak Benar"); 
+            getch();
             break;
         }
     } while(trigger == 0);
@@ -83,13 +87,17 @@ void pilihSort(user **player, int jumlahData){
             break;
 
             default :
-            
+            system("cls"); 
+            printf("Input Tidak Benar"); 
+            getch();
             break;
         }
 }
 
 void pilihSearch(user **player, int jumlahData){
     int pilihan;
+    char Searching[100];
+
     printf(" +-------------------------------------------------+\n");
     printf(" |          SELAMAT DATANG DI GAME LIBRARY         |\n");
     printf(" +-------------------------------------------------+\n");
@@ -105,19 +113,30 @@ void pilihSearch(user **player, int jumlahData){
 
     switch(pilihan) {
             case 1 : 
-            searchingTitle(player, jumlahData);
+            system("cls");
+            printf("Masukkan Title yang ingin di search : ");
+            scanf(" %[^\n]", Searching);
+            searchingTitle(player, Searching, pilihan);
             break;
 
             case 2 : 
-            searchingGenre(player, jumlahData);
+            system("cls");
+            printf("Masukkan Genre yang ingin di search : ");
+            scanf(" %[^\n]", Searching);
+            searchingGenre(player, Searching, pilihan);
             break;
 
             case 3 : 
-            searchingPublisher(player, jumlahData);
+            system("cls");
+            printf("Masukkan Publisher yang ingin di search : ");
+            scanf(" %[^\n]", Searching);
+            searchingPublisher(player, Searching, pilihan);
             break;
 
             default :
-            
+            system("cls"); 
+            printf("Input Tidak Benar"); 
+            getch();
             break;
         }
 }
@@ -174,30 +193,43 @@ void sortingHarga(user **player, int jumlahData){
     }
 }
 
-void searchingTitle(user **player, int jumlahData){
-    struct Node* current = *head;
-    int found = 0;
+void searchingString(user **player, char* namaDicari, int i){
+    GamesPtr current = (*player)->games;
+    int i = 1, found = 0;
+    string_to_lower(namaDicari);
 
-    printf("%-20s %-10s %-10s %-10s %-10s\n", "Name", "Kelas", "Gerbong", "Kursi", "Harga");
-    printf("---------------------------------------------------------------\n");
+    printf("Data:\n");
+    printf("_________________________________________________________________________________________________\n");
+    printf("|No\tTitle Game\t\tPublisher\tGenre\tHarga\tRating                               \n");
+    printf("|_______________________________________________________________________________________________|\n");
 
+    // Searching data yang sesuai
     while (current != NULL) {
-        if (current->harga >= BatasBawah && current->harga <= BatasAtas) {
-            printf("%-20s %-10s %-10d %-10d %-10.2f\n", current->namaPenumpang, current->kelas, current->noGerbong, current->noKursi, current->harga);
+        char currentNameLower[100];
+        if (i == 1) {
+            strcpy(currentNameLower, current->title);
+        }
+        else if (i == 2){
+            strcpy(currentNameLower, current->genre);
+        }
+        else if (i == 3){
+            strcpy(currentNameLower, current->publisher);
+        }
+        string_to_lower(currentNameLower);
+        if (strstr(currentNameLower, namaDicari) != NULL) {
+            printf("|%-2d\t%-20s\t%11s\t%9s\t%9d\t%11d\n", i+1, (*player)->Games->title, (*player)->Games->publisher, (*player)->Games->genre, (*player)->Games->price, (*player)->Games->rating);
             found = 1;
         }
         current = current->next;
     }
 
+    printf("|_______________________________________________________________________________________________|\n");
+
+    // Error handling jika tidak ada data yang sesuai
     if (!found) {
+        system("cls");
         printf("Tidak ada data yang sesuai.\n");
     }
-}
 
-void searchingGenre(user **player, int jumlahData){
-    
-}
-
-void searchingPublisher(user **player, int jumlahData){
-
+    getch(); system("cls");
 }
