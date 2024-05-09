@@ -146,7 +146,7 @@ void sortingRating(user **player, int jumlahData){
     int swapped;
 
     for(int i = 0; i < jumlahData; i++) {
-        h = (*player)->games;
+        h = (*player)->Games;
         swapped = 0;
         
         for(int j = 0; j < jumlahData - i - 1; j++) {
@@ -172,7 +172,7 @@ void sortingHarga(user **player, int jumlahData){
     int swapped;
 
     for(int i = 0; i < jumlahData; i++) {
-        h = (*player)->games;
+        h = (*player)->Games;
         swapped = 0;
         
         for(int j = 0; j < jumlahData - i - 1; j++) {
@@ -194,7 +194,7 @@ void sortingHarga(user **player, int jumlahData){
 }
 
 void searchingString(user **player, char* namaDicari, int i){
-    GamesPtr current = (*player)->games;
+    GamesPtr current = (*player)->Games;
     int i = 1, found = 0;
     string_to_lower(namaDicari);
 

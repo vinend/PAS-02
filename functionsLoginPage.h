@@ -61,14 +61,14 @@ void createUser(user **playerLogin) {
 
     system("cls");
     
-    newUser->games = NULL;
+    newUser->Games = NULL;
     *playerLogin = newUser; 
 }
 
 loginUser(user **player) {
 
     int trigger = 0;
-    int found;
+    int found, i;
     char bufferUsername[100];
     char bufferPassword[100];
 
@@ -78,7 +78,7 @@ loginUser(user **player) {
     printf("Enter Username  : "); scanf("%s", &bufferUsername);
     printf("Enter Password  : "); scanf("%s", &bufferPassword);
 
-    while(current !=NULL) {
+    while(player !=NULL) {
         if(strcmp(bufferUsername, player[i]->gamerTag) == 0 && strcmp(bufferPassword, player[i]->password) == 0) {
             printf("Login Succesful!");
             found = 1;
