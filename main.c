@@ -29,7 +29,7 @@ user **player;
 
     readFromFile(player, &numPlayer);
     loginPageMenu(&player);
-    
+
     return 0;
 
 }

@@ -68,7 +68,7 @@ void createUser(user **playerLogin) {
 loginUser(user **player) {
 
     int trigger = 0;
-    int found, i;
+    int found, i, loginKey;
     char bufferUsername[100];
     char bufferPassword[100];
 
@@ -82,6 +82,7 @@ loginUser(user **player) {
         if(strcmp(bufferUsername, player[i]->gamerTag) == 0 && strcmp(bufferPassword, player[i]->password) == 0) {
             printf("Login Succesful!");
             found = 1;
+            loginKey = i;
             break;
         }
 
@@ -89,7 +90,8 @@ loginUser(user **player) {
     }
 
     if(found == 1) {
-        
+
+        TampilkanData(player, loginKey);
     }
 
     else {
