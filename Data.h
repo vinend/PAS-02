@@ -97,7 +97,7 @@ void TampilkanData(user **player, int loginKey){
     } while(trigger == 0);
 }
 
-GamesPtr swap( GamesPtr ptr1, GamesPtr ptr2) {
+GamesPtr swap(GamesPtr ptr1, GamesPtr ptr2) {
 
     GamesPtr tmp = ptr2->next;
     ptr2->next = ptr1;

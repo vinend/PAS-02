@@ -32,6 +32,7 @@ int main() {
     readFromFile(&player, &numPlayer);
     loginPageMenu(&player);
 
+    TampilkanData(&player, &numPlayer);
     return 0;
 
 }
