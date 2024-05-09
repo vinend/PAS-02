@@ -4,7 +4,42 @@
 #include <conio.h>
 #include "struct.h"
 
-void TampilkanData(user **player){
+void readFromFile(user **players, int *numPlayers) {
+    FILE *file = fopen("players.txt", "r");
+    if (!file) {
+        printf("Failed to open the file.\n");
+        return;
+    }
+
+    char buffer[1024];
+    int index = 0;
+    user *newUser = NULL;
+
+    while (fgets(buffer, sizeof(buffer), file) != NULL) {
+        if (strncmp("GamerTag:", buffer, 9) == 0) {
+            newUser = (user *)malloc(sizeof(user));
+            sscanf(buffer, "GamerTag: %99[^\n]", newUser->gamerTag);
+
+            fgets(buffer, sizeof(buffer), file);
+            sscanf(buffer, "Password: %99[^\n]", newUser->password);
+
+            newUser->Games = NULL;
+            players[index++] = newUser;
+        } else if (strncmp("Game:", buffer, 5) == 0) {
+            NodeGames *newGame = (NodeGames *)malloc(sizeof(NodeGames));
+            sscanf(buffer, "Game: %99[^,], %99[^,], %999[^,], %99[^,], %f, %f", 
+                newGame->title, newGame->genre, newGame->desc, newGame->publisher, &newGame->rating, &newGame->price);
+            
+            newGame->next = newUser->Games;
+            newUser->Games = newGame;
+        }
+    }
+
+    fclose(file);
+    *numPlayers = index;
+}
+
+void TampilkanData(user **player, int loginKey){
     int i = 0, pilihan, trigger;
 
     printf("Data:\n");
