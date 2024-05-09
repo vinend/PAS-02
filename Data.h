@@ -2,7 +2,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <conio.h>
+#include <ctype.h>
 #include "struct.h"
+
+void TampilkanData(user **player, int loginKey);
+GamesPtr swap( GamesPtr ptr1, GamesPtr ptr2);
+void string_to_lower(char *str);
+void pilihSort(user **player, int jumlahData);
+void pilihSearch(user **player, int jumlahData);
+void sortingRating(user **player, int jumlahData);
+void sortingHarga(user **player, int jumlahData);
+void searchingString(user **player, char* namaDicari, int i);
 
 void readFromFile(user **players, int *numPlayers) {
     FILE *file = fopen("players.txt", "r");
@@ -151,21 +161,21 @@ void pilihSearch(user **player, int jumlahData){
             system("cls");
             printf("Masukkan Title yang ingin di search : ");
             scanf(" %[^\n]", Searching);
-            searchingTitle(player, Searching, pilihan);
+            searchingString(player, Searching, pilihan);
             break;
 
             case 2 : 
             system("cls");
             printf("Masukkan Genre yang ingin di search : ");
             scanf(" %[^\n]", Searching);
-            searchingGenre(player, Searching, pilihan);
+            searchingString(player, Searching, pilihan);
             break;
 
             case 3 : 
             system("cls");
             printf("Masukkan Publisher yang ingin di search : ");
             scanf(" %[^\n]", Searching);
-            searchingPublisher(player, Searching, pilihan);
+            searchingString(player, Searching, pilihan);
             break;
 
             default :
@@ -230,7 +240,7 @@ void sortingHarga(user **player, int jumlahData){
 
 void searchingString(user **player, char* namaDicari, int i){
     GamesPtr current = (*player)->Games;
-    int i = 1, found = 0;
+    int found = 0;
     string_to_lower(namaDicari);
 
     printf("Data:\n");
