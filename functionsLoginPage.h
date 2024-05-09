@@ -4,6 +4,10 @@
 #include <conio.h>
 #include "struct.h"
 
+void flushInput();
+void randomPassGen(char *pass, int length);
+void createUser(user **playerLogin);
+void loginUser(user **player);
 
 void flushInput() {
     int c;
@@ -65,7 +69,7 @@ void createUser(user **playerLogin) {
     *playerLogin = newUser; 
 }
 
-loginUser(user **player) {
+void loginUser(user **player) {
 
     int trigger = 0;
     int found, i;

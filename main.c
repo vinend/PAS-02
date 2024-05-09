@@ -14,9 +14,11 @@
 #include <time.h>
 #include "struct.h"
 #include "Data.h"
+#include "functionsLoginPage.h"
 
 int main() {
-user **player;
+
+    user **player;
     int numPlayer = 0;
     int maxPlayer = 100;  
     int pilihan, trigger = 0;

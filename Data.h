@@ -124,11 +124,11 @@ void pilihSort(user **player, int jumlahData){
 
     switch(pilihan) {
             case 1 : 
-            sortingRating(player, jumlahData);
+            MergeSort(player, pilihan);
             break;
 
             case 2 : 
-            sortingHarga(player, jumlahData);
+            MergeSort(player, pilihan);
             break;
 
             default :
@@ -186,56 +186,93 @@ void pilihSearch(user **player, int jumlahData){
         }
 }
 
-void sortingRating(user **player, int jumlahData){
-    GamesPtr h; 
-    int swapped;
+void MergeSort(user **player, int pilihan)
+{
+    GamesPtr head = player;
+    GamesPtr a;
+    GamesPtr b;
 
-    for(int i = 0; i < jumlahData; i++) {
-        h = (*player)->Games;
-        swapped = 0;
-        
-        for(int j = 0; j < jumlahData - i - 1; j++) {
-            GamesPtr p1 = h;
-            GamesPtr p2 = p1->next;
+    /* Base case -- length 0 or 1 */
+    if ((head == NULL) || (head->next == NULL)) {
+        return;
+    }
 
-            if(p1->rating > p2->rating) {
-                h = swap(p1, p2);
-                swapped = 1;
-            }
+    /* Split head into 'a' and 'b' sublists */
+    FrontBackSplit(head, &a, &b);
 
-            h = h->next;
+    /* Recursively sort the sublists */
+    MergeSort(&a, pilihan);
+    MergeSort(&b, pilihan);
+
+    /* answer = merge the two sorted lists together */
+    player = SortedMerge(a, b, pilihan);
+}
+
+GamesPtr SortedMerge(GamesPtr a, GamesPtr b, int pilihan)
+{
+    GamesPtr result = NULL;
+
+    /* Base cases */
+    if (a == NULL)
+        return (b);
+    else if (b == NULL)
+        return (a);
+    if (pilihan == 2){
+        /* Pick either a or b, and recur */
+        if (a->price <= b->price) {
+            result = a;
+            result->next = SortedMerge(a->next, b, pilihan);
         }
-
-        if(swapped == 0) {
-            break;
+        else {
+            result = b;
+            result->next = SortedMerge(a, b->next, pilihan);
         }
+        return (result);
+    }
+    else if (pilihan == 1){
+        /* Pick either a or b, and recur */
+        if (a->rating <= b->rating) {
+            result = a;
+            result->next = SortedMerge(a->next, b, pilihan);
+        }
+        else {
+            result = b;
+            result->next = SortedMerge(a, b->next, pilihan);
+        }
+        return (result);
+    }
+    else{
+
     }
 }
 
-void sortingHarga(user **player, int jumlahData){
-    GamesPtr h; 
-    int swapped;
+/* UTILITY FUNCTIONS */
+/* Split the nodes of the given list into front and back halves,
+    and return the two lists using the reference parameters.
+    If the length is odd, the extra node should go in the front list.
+    Uses the fast/slow pointer strategy. */
+void FrontBackSplit(GamesPtr source,
+                    GamesPtr* frontRef, GamesPtr* backRef)
+{
+    GamesPtr fast;
+    GamesPtr slow;
+    slow = source;
+    fast = source->next;
 
-    for(int i = 0; i < jumlahData; i++) {
-        h = (*player)->Games;
-        swapped = 0;
-        
-        for(int j = 0; j < jumlahData - i - 1; j++) {
-            GamesPtr p1 = h;
-            GamesPtr p2 = p1->next;
-
-            if(p1->price > p2->price) {
-                h = swap(p1, p2);
-                swapped = 1;
-            }
-
-            h = h->next;
-        }
-
-        if(swapped == 0) {
-            break;
+    /* Advance 'fast' two nodes, and advance 'slow' one node */
+    while (fast != NULL) {
+        fast = fast->next;
+        if (fast != NULL) {
+            slow = slow->next;
+            fast = fast->next;
         }
     }
+
+    /* 'slow' is before the midpoint in the list, so split it in two
+    at that point. */
+    *frontRef = source;
+    *backRef = slow->next;
+    slow->next = NULL;
 }
 
 void searchingString(user **player, char* namaDicari, int i){
