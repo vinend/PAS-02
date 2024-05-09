@@ -16,44 +16,20 @@
 #include "Data.h"
 
 int main() {
-    int pilihan, trigger;
+user **player;
+    int numPlayer = 0;
+    int maxPlayer = 100;  
+    int pilihan, trigger = 0;
 
-    user *player = NULL;
+    player = (user **)malloc(maxPlayer * sizeof(user *));
+    if (player == NULL) {
+        fprintf(stderr, "Failed to allocate memory for players.\n");
+        return EXIT_FAILURE;
+    }
 
+    readFromFile(player, &numPlayer);
     loginPageMenu(&player);
-
-    do {
-        printf(" +-------------------------------------------------+\n");
-        printf(" |          SELAMAT DATANG DI GAME LIBRARY         |\n");
-        printf(" +-------------------------------------------------+\n");
-        printf(" | No. |              OPSI                         |\n");
-        printf(" +-----+-------------------------------------------+\n");
-        printf(" |  1  | Tambahkan Data                            |\n");
-        printf(" +-----+-------------------------------------------+\n");
-        printf(" |  2  | Lihat Data                                |\n");
-        printf(" +-----+-------------------------------------------+\n");
-        printf(" |  3  | Exit Program                              |\n");
-        printf(" +-----+-------------------------------------------+\n");
-        printf("Pilih Opsi: "); scanf("%d", &pilihan);
-
-        switch(pilihan) {
-            case 1 : TambahData(&player);
-            break;
-
-            case 2 : TampilkanData(player);
-            break;
-
-            case 3 : 
-            break;
-
-            default :
-            system("cls"); 
-            printf("Input Tidak Benar"); 
-            getch();
-            break;
-        }
-    } while(trigger == 0);
-
+    
     return 0;
 
 }
