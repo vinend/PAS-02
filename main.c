@@ -29,9 +29,9 @@ int main() {
         return EXIT_FAILURE;
     }
 
-    readFromFile(player, &numPlayer);
+    readFromFile(&player, &numPlayer);
     loginPageMenu(&player);
-    
+
     return 0;
 
 }

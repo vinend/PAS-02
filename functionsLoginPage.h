@@ -4,10 +4,6 @@
 #include <conio.h>
 #include "struct.h"
 
-void flushInput();
-void randomPassGen(char *pass, int length);
-void createUser(user **playerLogin);
-void loginUser(user **player);
 
 void flushInput() {
     int c;
@@ -69,48 +65,45 @@ void createUser(user **playerLogin) {
     *playerLogin = newUser; 
 }
 
-void loginUser(user **player) {
-
-    int trigger = 0;
-    int found, i;
-    char bufferUsername[100];
-    char bufferPassword[100];
+void loginUser(user **player, int numPlayer) {
+    int trigger = 0, found = 0, loginKey = -1;
+    char bufferUsername[100], bufferPassword[100];
 
     do {
+        printf("||         USER LOGIN PAGE         ||\n");
+        printf("Enter Username  : ");
+        scanf("%99s", bufferUsername);
+        printf("Enter Password  : ");
+        scanf("%99s", bufferPassword);
 
-    printf("||         USER LOGIN PAGE         ||\n");
-    printf("Enter Username  : "); scanf("%s", &bufferUsername);
-    printf("Enter Password  : "); scanf("%s", &bufferPassword);
-
-    while(player !=NULL) {
-        if(strcmp(bufferUsername, player[i]->gamerTag) == 0 && strcmp(bufferPassword, player[i]->password) == 0) {
-            printf("Login Succesful!");
-            found = 1;
-            break;
+        for (int i = 0; i < numPlayer; i++) {
+            if (strcmp(bufferUsername, player[i]->gamerTag) == 0 && strcmp(bufferPassword, player[i]->password) == 0) {
+                printf("Login Successful!\n");
+                found = 1;
+                loginKey = i;
+                break;
+            }
         }
 
-        i++;
-    }
-
-    if(found == 1) {
-        
-    }
-
-    else {
-        printf("We couldn't find your username  / The password is wrong\n You have 3 attempts left");
-        trigger++;
-    }
-
-    system("cls");
-
-    } while(trigger == 3);
-
+        if (found == 1) {
+            TampilkanData(&player[loginKey], loginKey);
+            break; 
+        } else {
+            printf("We couldn't find your username / The password is wrong\n You have %d attempts left\n", 2 - trigger);
+            trigger++;
+            if (trigger == 3) {
+                printf("Maximum login attempts exceeded.\n");
+                break;
+            }
+        }
+        fflush(stdin); 
+    } while (trigger == 0);
 }
 
 void loginPageMenu(user **player) {
 
     int pilihan, trigger = 0;
-
+    system("cls");
     printf(" _    _      _                            _____     \n");
     printf("| |  | |    | |                          |_   _|    \n");
     printf("| |  | | ___| | ___ ___  _ __ ___   ___    | |      \n");
@@ -124,6 +117,7 @@ void loginPageMenu(user **player) {
 
 
     do {
+    system("cls");
     printf(" +-------------------------------------------------+\n");
     printf(" |          SELAMAT DATANG DI GAME LIBRARY         |\n");
     printf(" +-------------------------------------------------+\n");
@@ -138,10 +132,10 @@ void loginPageMenu(user **player) {
     printf("Pilih Opsi: "); scanf("%d", &pilihan);
 
     switch(pilihan) {
-        case 1 : loginUser(player);
+        case 1 : loginUser(&player, 100);
         break;
 
-        case 2 : createUser(player);
+        case 2 : createUser(&player);
         break;
 
         case 3 : trigger = 1;
