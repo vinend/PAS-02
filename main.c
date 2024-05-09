@@ -14,6 +14,7 @@
 #include <time.h>
 #include "struct.h"
 #include "Data.h"
+#include "functionsLoginPage.h"
 
 int main() {
 user **player;
@@ -27,7 +28,7 @@ user **player;
         return EXIT_FAILURE;
     }
 
-    readFromFile(player, &numPlayer);
+    readFromFile(&player, &numPlayer);
     loginPageMenu(&player);
 
     return 0;
