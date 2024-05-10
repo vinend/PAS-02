@@ -30,9 +30,19 @@ void readFromFile(user **players, int *numPlayers) {
 
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
         if (strncmp("GamerTag:", buffer, 9) == 0) {
-            newUser = insertUserNode(players, &index, buffer);
-        } else if (newUser && strncmp("Game:", buffer, 5) == 0) {
-            NodeGames *newGame = createGameNode(buffer);
+            newUser = (user *)malloc(sizeof(user));
+            sscanf(buffer, "GamerTag: %99[^\n]", newUser->gamerTag);
+
+            fgets(buffer, sizeof(buffer), file);
+            sscanf(buffer, "Password: %99[^\n]", newUser->password);
+
+            newUser->Games = NULL;
+            players[index++] = newUser;
+        } else if (strncmp("Game:", buffer, 5) == 0) {
+            NodeGames *newGame = (NodeGames *)malloc(sizeof(NodeGames));
+            sscanf(buffer, "Game: %99[^,], %99[^,], %999[^,], %99[^,], %f, %f", 
+                newGame->title, newGame->genre, newGame->desc, newGame->publisher, &newGame->rating, &newGame->price);
+            
             newGame->next = newUser->Games;
             newUser->Games = newGame;
         }
@@ -41,37 +51,6 @@ void readFromFile(user **players, int *numPlayers) {
     fclose(file);
     *numPlayers = index;
 }
-
-user *insertUserNode(user ***players, int *index, char *buffer) {
-    user *newUser = (user *)malloc(sizeof(user));
-    if (newUser == NULL) {
-        printf("Memory allocation failed for new user.\n");
-        return NULL;
-    }
-    sscanf(buffer, "GamerTag: %99[^\n]", newUser->gamerTag);
-
-    fgets(buffer, 1024, stdin);
-    sscanf(buffer, "Password: %99[^\n]", newUser->password);
-
-    newUser->Games = NULL;
-    (*players)[(*index)++] = newUser;
-
-    return newUser;
-}
-
-NodeGames *createGameNode(char *buffer) {
-    NodeGames *newGame = (NodeGames *)malloc(sizeof(NodeGames));
-    if (newGame == NULL) {
-        printf("Memory allocation failed for new game.\n");
-        return NULL;
-    }
-    sscanf(buffer, "Game: %99[^,], %99[^,], %999[^,], %99[^,], %f, %f",
-        newGame->title, newGame->genre, newGame->desc, newGame->publisher, &newGame->rating, &newGame->price);
-
-    return newGame;
-}
-
-
 
 void TampilkanData(user **player, int loginKey){
     int i = 0, pilihan, trigger;

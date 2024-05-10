@@ -3,6 +3,7 @@
         "functionsloginpage.h": "c",
         "stdio.h": "c",
         "conio.h": "c",
-        "struct.h": "c"
+        "struct.h": "c",
+        "stdlib.h": "c"
     }
 }

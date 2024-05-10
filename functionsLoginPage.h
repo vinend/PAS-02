@@ -69,12 +69,14 @@ void loginUser(user **player, int numPlayer) {
     int trigger = 0, found = 0, loginKey = -1;
     char bufferUsername[100], bufferPassword[100];
 
-    do {
-        printf("||         USER LOGIN PAGE         ||\n");
-        printf("Enter Username  : ");
-        scanf("%99s", &bufferUsername);
-        printf("Enter Password  : ");
-        scanf("%99s",&bufferPassword);
+    system("cls");
+    printf("||         USER LOGIN PAGE         ||\n");
+
+    while (trigger < 3 && !found) {
+        printf("Enter Username: ");
+        scanf(" %99s", bufferUsername);
+        printf("Enter Password: ");
+        scanf(" %99s", bufferPassword);
 
         for (int i = 0; i < numPlayer; i++) {
             if (strcmp(bufferUsername, player[i]->gamerTag) == 0 && strcmp(bufferPassword, player[i]->password) == 0) {
@@ -85,21 +87,19 @@ void loginUser(user **player, int numPlayer) {
             }
         }
 
-        if (found == 1) {
-            TampilkanData(&player[loginKey], loginKey);
+        if (found) {
+            TampilkanData(player, loginKey);
             break; 
         } else {
-            printf("We couldn't find your username / The password is wrong\n You have %d attempts left\n", 2 - trigger);
+            printf("We couldn't find your username / The password is wrong. You have %d attempts left.\n", 2 - trigger);
             trigger++;
             if (trigger == 3) {
                 printf("Maximum login attempts exceeded.\n");
                 break;
             }
         }
-        fflush(stdin); 
-    } while (trigger == 0);
+    }
 }
-
 void loginPageMenu(user **player) {
 
     int pilihan, trigger = 0;
