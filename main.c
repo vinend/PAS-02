@@ -77,10 +77,10 @@ void readPlayersFromFile(user **players, int *numPlayers) {
     *numPlayers = index;
 }
 
-void readGamesFromFile(user **players, int numPlayers) {
+void readGamesFromFileForUser(user *player) {
     FILE *file = fopen("games.txt", "r");
     if (!file) {
-        printf("Failed to open the file.\n");
+        perror("Failed to open the file");
         return;
     }
 
@@ -90,16 +90,21 @@ void readGamesFromFile(user **players, int numPlayers) {
 
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
         newGame = (NodeGames *)malloc(sizeof(NodeGames));
+        if (!newGame) {
+            fprintf(stderr, "Memory allocation failed for new game\n");
+            continue;
+        }
+
         if (sscanf(buffer, "GamerTag: %99[^;]; Game: %99[^,], %99[^,], %999[^,], %99[^,], %f, %f",
-                gamerTag, newGame->title, newGame->genre, newGame->desc, newGame->publisher, &newGame->rating, &newGame->price) == 7) {
-            for (int i = 0; i < numPlayers; i++) {
-                if (strcmp(players[i]->gamerTag, gamerTag) == 0) {
-                    newGame->next = players[i]->Games;
-                    players[i]->Games = newGame;
-                    break;
-                }
+            gamerTag, newGame->title, newGame->genre, newGame->desc, newGame->publisher, &newGame->rating, &newGame->price) == 7) {
+            if (strcmp(player->gamerTag, gamerTag) == 0) {
+                newGame->next = player->Games;
+                player->Games = newGame;
+            } else {
+                free(newGame);
             }
         } else {
+            fprintf(stderr, "Failed to parse game data: %s\n", buffer);
             free(newGame);
         }
     }
@@ -110,15 +115,16 @@ void readGamesFromFile(user **players, int numPlayers) {
 void TampilkanData(user **player[], int loginKey){
     int i = 0, pilihan, trigger, O = 0;
 
+    readGamesFromFileForUser((*player)[loginKey]);
+
     printf("Data:\n");
     printf("_________________________________________________________________________________________________\n");
     printf("|No\tTitle Game\t\tPublisher\tGenre\tHarga\tRating                               \n");
     printf("|_______________________________________________________________________________________________|\n");
 
     NodeGames *currentGame = (*player)[loginKey]->Games;
-    while (currentGame != NULL)
-    {
-        printf("|%-2d\t%-20s\t%11s\t%9s\t%9d\t%11d\n", i+1, currentGame->title, currentGame->publisher, currentGame->genre, currentGame->price, currentGame->rating);
+    while (currentGame != NULL) {
+        printf("|%-2d\t%-20s\t%11s\t%9s\t%9.2f\t%9.2f\n", i+1, currentGame->title, currentGame->publisher, currentGame->genre, currentGame->price, currentGame->rating);
         currentGame = currentGame->next;
         i++;
     }
