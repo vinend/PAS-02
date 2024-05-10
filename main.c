@@ -17,7 +17,8 @@
 #include "functionsLoginPage.h"
 
 int main() {
-user **player;
+
+    user **player;
     int numPlayer = 0;
     int maxPlayer = 100;  
     int pilihan, trigger = 0;
@@ -31,6 +32,7 @@ user **player;
     readFromFile(&player, &numPlayer);
     loginPageMenu(&player);
 
+    TampilkanData(&player, &numPlayer);
     return 0;
 
 }
