@@ -12,6 +12,7 @@
 #include <string.h>
 #include <conio.h>
 #include <time.h>
+#include <ctype.h>
 
 struct videoGames{
     char title[100];
@@ -25,15 +26,17 @@ struct videoGames{
 
 };
 
+typedef struct User user;
+typedef struct videoGames NodeGames;
+typedef NodeGames *GamesPtr;
+
 struct User{
     char gamerTag[100];
     char password[100];
     GamesPtr Games; 
 };
 
-typedef struct User user;
-typedef struct videoGames NodeGames;
-typedef NodeGames *GamesPtr;
+
 
 void TampilkanData(user **player, int loginKey);
 GamesPtr swap( GamesPtr ptr1, GamesPtr ptr2);
@@ -43,7 +46,7 @@ void pilihSearch(user **player, int jumlahData);
 void sortingRating(user **player, int jumlahData);
 void sortingHarga(user **player, int jumlahData);
 void searchingString(user **player, char* namaDicari, int i);
-void MergeSort(user **player, int pilihan);
+void MergeSort(GamesPtr player, int pilihan);
 GamesPtr SortedMerge(GamesPtr a, GamesPtr b, int pilihan);
 void FrontBackSplit(GamesPtr source, GamesPtr* frontRef, GamesPtr* backRef);
 
@@ -157,11 +160,11 @@ void pilihSort(user **player, int jumlahData){
 
     switch(pilihan) {
             case 1 : 
-            MergeSort(player, pilihan);
+            MergeSort((*player)->Games, pilihan);
             break;
 
             case 2 : 
-            MergeSort(player, pilihan);
+            MergeSort((*player)->Games, pilihan);
             break;
 
             default :
@@ -219,7 +222,7 @@ void pilihSearch(user **player, int jumlahData){
         }
 }
 
-void MergeSort(user **player, int pilihan)
+void MergeSort(GamesPtr player, int pilihan)
 {
     GamesPtr head = player;
     GamesPtr a;
@@ -234,8 +237,8 @@ void MergeSort(user **player, int pilihan)
     FrontBackSplit(head, &a, &b);
 
     /* Recursively sort the sublists */
-    MergeSort(&a, pilihan);
-    MergeSort(&b, pilihan);
+    MergeSort(a, pilihan);
+    MergeSort(b, pilihan);
 
     /* answer = merge the two sorted lists together */
     player = SortedMerge(a, b, pilihan);
@@ -475,10 +478,10 @@ void loginPageMenu(user **player) {
     printf("Pilih Opsi: "); scanf("%d", &pilihan);
 
     switch(pilihan) {
-        case 1 : loginUser(&player, 100);
+        case 1 : loginUser(player, 100);
         break;
 
-        case 2 : createUser(&player);
+        case 2 : createUser(player);
         break;
 
         case 3 : trigger = 1;
@@ -503,10 +506,10 @@ int main() {
         return EXIT_FAILURE;
     }
 
-    readFromFile(&player, &maxPlayer);
-    loginPageMenu(&player);
+    readFromFile(player, &maxPlayer);
+    loginPageMenu(player);
 
-    TampilkanData(&player, &maxPlayer);
+    TampilkanData(player, maxPlayer);
     return 0;
 
 }
