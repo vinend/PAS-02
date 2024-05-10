@@ -38,7 +38,7 @@ struct User{
 
 
 
-void TampilkanData(user **player, int loginKey);
+void TampilkanData(user **player[], int loginKey);
 GamesPtr swap( GamesPtr ptr1, GamesPtr ptr2);
 void string_to_lower(char *str);
 void pilihSort(user **player, int jumlahData);
@@ -107,20 +107,23 @@ void readGamesFromFile(user **players, int numPlayers) {
     fclose(file);
 }
 
-void TampilkanData(user **player, int loginKey){
-    int i = 0, pilihan, trigger;
+void TampilkanData(user **player[], int loginKey){
+    int i = 0, pilihan, trigger, O = 0;
 
     printf("Data:\n");
     printf("_________________________________________________________________________________________________\n");
     printf("|No\tTitle Game\t\tPublisher\tGenre\tHarga\tRating                               \n");
     printf("|_______________________________________________________________________________________________|\n");
 
-    while ((*player)->Games->next != NULL)
+    NodeGames *currentGame = (*player)[loginKey]->Games;
+    while (currentGame != NULL)
     {
-        printf("|%-2d\t%-20s\t%11s\t%9s\t%9d\t%11d\n", i+1, (*player)->Games->title, (*player)->Games->publisher, (*player)->Games->genre, (*player)->Games->price, (*player)->Games->rating);
+        printf("|%-2d\t%-20s\t%11s\t%9s\t%9d\t%11d\n", i+1, currentGame->title, currentGame->publisher, currentGame->genre, currentGame->price, currentGame->rating);
+        currentGame = currentGame->next;
+        i++;
     }
     printf("|_______________________________________________________________________________________________|\n");
-
+    getch();
     do {
         system("cls");
         printf(" +-------------------------------------------------+\n");
@@ -136,11 +139,11 @@ void TampilkanData(user **player, int loginKey){
 
         switch(pilihan) {
             case 1 : 
-            pilihSort(player, i);
+            pilihSort(player[loginKey], i);
             break;
 
             case 2 : 
-            pilihSearch(player, i);
+            pilihSearch(player[loginKey], i);
             break;
 
             default :
@@ -456,7 +459,7 @@ void loginUser(user **player, int numPlayer) {
         }
 
         if (found) {
-            TampilkanData(player, loginKey);
+            TampilkanData(&player, loginKey);
             break; 
         } else {
             printf("We couldn't find your username / The password is wrong. You have %d attempts left.\n", 2 - trigger);
@@ -469,7 +472,7 @@ void loginUser(user **player, int numPlayer) {
     }
 }
 void loginPageMenu(user **player) {
-
+    
     int pilihan, trigger = 0;
     system("cls");
     printf(" _    _      _                            _____     \n");
@@ -530,8 +533,6 @@ int main() {
 
     readPlayersFromFile(player, &maxPlayer);
     loginPageMenu(player);
-
-    TampilkanData(player, maxPlayer);
     return 0;
 
 }
