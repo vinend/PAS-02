@@ -50,7 +50,7 @@ void MergeSort(GamesPtr player, int pilihan);
 GamesPtr SortedMerge(GamesPtr a, GamesPtr b, int pilihan);
 void FrontBackSplit(GamesPtr source, GamesPtr* frontRef, GamesPtr* backRef);
 
-void readFromFile(user **players, int *numPlayers) {
+void readPlayersFromFile(user **players, int *numPlayers) {
     FILE *file = fopen("players.txt", "r");
     if (!file) {
         printf("Failed to open the file.\n");
@@ -59,30 +59,52 @@ void readFromFile(user **players, int *numPlayers) {
 
     char buffer[1024];
     int index = 0;
-    user *newUser = NULL;
+    user *newUser;
 
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
-        if (strncmp("GamerTag:", buffer, 9) == 0) {
-            newUser = (user *)malloc(sizeof(user));
-            sscanf(buffer, "GamerTag: %99[^\n]", newUser->gamerTag);
-
-            fgets(buffer, sizeof(buffer), file);
-            sscanf(buffer, "Password: %99[^\n]", newUser->password);
-
-            newUser->Games = NULL;
-            players[index++] = newUser;
-        } else if (strncmp("Game:", buffer, 5) == 0) {
-            NodeGames *newGame = (NodeGames *)malloc(sizeof(NodeGames));
-            sscanf(buffer, "Game: %99[^,], %99[^,], %999[^,], %99[^,], %f, %f", 
-                newGame->title, newGame->genre, newGame->desc, newGame->publisher, &newGame->rating, &newGame->price);
-            
-            newGame->next = newUser->Games;
-            newUser->Games = newGame;
+        newUser = (user *)malloc(sizeof(user));
+        if (sscanf(buffer, "GamerTag: %99[^\n]", newUser->gamerTag) == 1) {
+            if (fgets(buffer, sizeof(buffer), file) && sscanf(buffer, "Password: %99[^\n]", newUser->password) == 1) {
+                newUser->Games = NULL;
+                players[index++] = newUser;
+            } else {
+                free(newUser);
+            }
         }
     }
 
     fclose(file);
     *numPlayers = index;
+}
+
+void readGamesFromFile(user **players, int numPlayers) {
+    FILE *file = fopen("games.txt", "r");
+    if (!file) {
+        printf("Failed to open the file.\n");
+        return;
+    }
+
+    char buffer[1024];
+    char gamerTag[100];
+    NodeGames *newGame;
+
+    while (fgets(buffer, sizeof(buffer), file) != NULL) {
+        newGame = (NodeGames *)malloc(sizeof(NodeGames));
+        if (sscanf(buffer, "GamerTag: %99[^;]; Game: %99[^,], %99[^,], %999[^,], %99[^,], %f, %f",
+                gamerTag, newGame->title, newGame->genre, newGame->desc, newGame->publisher, &newGame->rating, &newGame->price) == 7) {
+            for (int i = 0; i < numPlayers; i++) {
+                if (strcmp(players[i]->gamerTag, gamerTag) == 0) {
+                    newGame->next = players[i]->Games;
+                    players[i]->Games = newGame;
+                    break;
+                }
+            }
+        } else {
+            free(newGame);
+        }
+    }
+
+    fclose(file);
 }
 
 void TampilkanData(user **player, int loginKey){
@@ -506,7 +528,7 @@ int main() {
         return EXIT_FAILURE;
     }
 
-    readFromFile(player, &maxPlayer);
+    readPlayersFromFile(player, &maxPlayer);
     loginPageMenu(player);
 
     TampilkanData(player, maxPlayer);
