@@ -72,9 +72,9 @@ void loginUser(user **player, int numPlayer) {
     do {
         printf("||         USER LOGIN PAGE         ||\n");
         printf("Enter Username  : ");
-        scanf("%99s", bufferUsername);
+        scanf("%99s", &bufferUsername);
         printf("Enter Password  : ");
-        scanf("%99s", bufferPassword);
+        scanf("%99s",&bufferPassword);
 
         for (int i = 0; i < numPlayer; i++) {
             if (strcmp(bufferUsername, player[i]->gamerTag) == 0 && strcmp(bufferPassword, player[i]->password) == 0) {
