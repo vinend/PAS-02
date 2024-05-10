@@ -46,9 +46,9 @@ void pilihSearch(user **player, int jumlahData);
 void sortingRating(user **player, int jumlahData);
 void sortingHarga(user **player, int jumlahData);
 void searchingString(user **player, char* namaDicari, int i);
-void MergeSort(GamesPtr player, int pilihan);
-GamesPtr SortedMerge(GamesPtr a, GamesPtr b, int pilihan);
 void FrontBackSplit(GamesPtr source, GamesPtr* frontRef, GamesPtr* backRef);
+GamesPtr SortedMerge(GamesPtr a, GamesPtr b, int pilihan);
+void MergeSort(GamesPtr* headRef, int pilihan) ;
 
 void readPlayersFromFile(user **players, int *numPlayers) {
     FILE *file = fopen("players.txt", "r");
@@ -113,24 +113,26 @@ void readGamesFromFileForUser(user *player) {
 }
 
 void TampilkanData(user **player[], int loginKey){
-    int i = 0, pilihan, trigger, O = 0;
+    int trigger = 0;
 
-    readGamesFromFileForUser((*player)[loginKey]);
-
-    printf("Data:\n");
-    printf("_________________________________________________________________________________________________\n");
-    printf("|No\tTitle Game\t\tPublisher\tGenre\tHarga\tRating                               \n");
-    printf("|_______________________________________________________________________________________________|\n");
-
-    NodeGames *currentGame = (*player)[loginKey]->Games;
-    while (currentGame != NULL) {
-        printf("|%-2d\t%-20s\t%11s\t%9s\t%9.2f\t%9.2f\n", i+1, currentGame->title, currentGame->publisher, currentGame->genre, currentGame->price, currentGame->rating);
-        currentGame = currentGame->next;
-        i++;
-    }
-    printf("|_______________________________________________________________________________________________|\n");
-    getch();
     do {
+        int i = 0, pilihan, O = 0;
+        readGamesFromFileForUser((*player)[loginKey]);
+
+        printf("Data:\n");
+        printf("_________________________________________________________________________________________________\n");
+        printf("|No\tTitle Game\t\tPublisher\tGenre\tHarga\tRating                               \n");
+        printf("|_______________________________________________________________________________________________|\n");
+
+        NodeGames *currentGame = (*player)[loginKey]->Games;
+        while (currentGame != NULL) {
+            printf("|%-2d\t%-20s\t%11s\t%9s\t%9.2f\t%9.2f\n", i+1, currentGame->title, currentGame->publisher, currentGame->genre, currentGame->price, currentGame->rating);
+            currentGame = currentGame->next;
+            i++;
+        }
+        printf("|_______________________________________________________________________________________________|\n");
+        getch();
+
         system("cls");
         printf(" +-------------------------------------------------+\n");
         printf(" |          SELAMAT DATANG DI GAME LIBRARY         |\n");
@@ -191,11 +193,11 @@ void pilihSort(user **player, int jumlahData){
 
     switch(pilihan) {
             case 1 : 
-            MergeSort((*player)->Games, pilihan);
+            MergeSort(&(*player)->Games, pilihan);
             break;
 
             case 2 : 
-            MergeSort((*player)->Games, pilihan);
+            MergeSort(&(*player)->Games, pilihan);
             break;
 
             default :
@@ -253,79 +255,16 @@ void pilihSearch(user **player, int jumlahData){
         }
 }
 
-void MergeSort(GamesPtr player, int pilihan)
-{
-    GamesPtr head = player;
-    GamesPtr a;
-    GamesPtr b;
-
-    /* Base case -- length 0 or 1 */
-    if ((head == NULL) || (head->next == NULL)) {
-        return;
-    }
-
-    /* Split head into 'a' and 'b' sublists */
-    FrontBackSplit(head, &a, &b);
-
-    /* Recursively sort the sublists */
-    MergeSort(a, pilihan);
-    MergeSort(b, pilihan);
-
-    /* answer = merge the two sorted lists together */
-    player = SortedMerge(a, b, pilihan);
-}
-
-GamesPtr SortedMerge(GamesPtr a, GamesPtr b, int pilihan)
-{
-    GamesPtr result = NULL;
-
-    /* Base cases */
-    if (a == NULL)
-        return (b);
-    else if (b == NULL)
-        return (a);
-    if (pilihan == 2){
-        /* Pick either a or b, and recur */
-        if (a->price <= b->price) {
-            result = a;
-            result->next = SortedMerge(a->next, b, pilihan);
-        }
-        else {
-            result = b;
-            result->next = SortedMerge(a, b->next, pilihan);
-        }
-        return (result);
-    }
-    else if (pilihan == 1){
-        /* Pick either a or b, and recur */
-        if (a->rating <= b->rating) {
-            result = a;
-            result->next = SortedMerge(a->next, b, pilihan);
-        }
-        else {
-            result = b;
-            result->next = SortedMerge(a, b->next, pilihan);
-        }
-        return (result);
-    }
-    else{
-
-    }
-}
-
-/* UTILITY FUNCTIONS */
-/* Split the nodes of the given list into front and back halves,
-    and return the two lists using the reference parameters.
-    If the length is odd, the extra node should go in the front list.
-    Uses the fast/slow pointer strategy. */
-void FrontBackSplit(GamesPtr source, GamesPtr* frontRef, GamesPtr* backRef)
-{
+void FrontBackSplit(GamesPtr source, GamesPtr* frontRef, GamesPtr* backRef) {
     GamesPtr fast;
     GamesPtr slow;
+    if (source == NULL || source->next == NULL) {
+        *frontRef = source;
+        *backRef = NULL;
+        return;
+    }
     slow = source;
     fast = source->next;
-
-    /* Advance 'fast' two nodes, and advance 'slow' one node */
     while (fast != NULL) {
         fast = fast->next;
         if (fast != NULL) {
@@ -333,15 +272,57 @@ void FrontBackSplit(GamesPtr source, GamesPtr* frontRef, GamesPtr* backRef)
             fast = fast->next;
         }
     }
-
-    /* 'slow' is before the midpoint in the list, so split it in two
-    at that point. */
     *frontRef = source;
     *backRef = slow->next;
     slow->next = NULL;
 }
 
+GamesPtr SortedMerge(GamesPtr a, GamesPtr b, int pilihan) {
+    GamesPtr result = NULL;
+    if (a == NULL)
+        return b;
+    else if (b == NULL)
+        return a;
+
+    if (pilihan == 1) {  // Sorting by rating
+        if (a->rating <= b->rating) {
+            result = a;
+            result->next = SortedMerge(a->next, b, pilihan);
+        } else {
+            result = b;
+            result->next = SortedMerge(a, b->next, pilihan);
+        }
+    } else {  // Sorting by price
+        if (a->price <= b->price) {
+            result = a;
+            result->next = SortedMerge(a->next, b, pilihan);
+        } else {
+            result = b;
+            result->next = SortedMerge(a, b->next, pilihan);
+        }
+    }
+    return result;
+}
+
+void MergeSort(GamesPtr* headRef, int pilihan) {
+    GamesPtr head = *headRef;
+    GamesPtr a;
+    GamesPtr b;
+    if ((head == NULL) || (head->next == NULL)) {
+        return;
+    }
+
+    FrontBackSplit(head, &a, &b);  // Split into two halves
+
+    MergeSort(&a, pilihan);  // Sort first half
+    MergeSort(&b, pilihan);  // Sort second half
+
+    *headRef = SortedMerge(a, b, pilihan);  // Merge back together
+}
+
+
 void searchingString(user **player, char* namaDicari, int i){
+    int j = 0;
     GamesPtr current = (*player)->Games;
     int found = 0;
     string_to_lower(namaDicari);
@@ -365,7 +346,7 @@ void searchingString(user **player, char* namaDicari, int i){
         }
         string_to_lower(currentNameLower);
         if (strstr(currentNameLower, namaDicari) != NULL) {
-            printf("|%-2d\t%-20s\t%11s\t%9s\t%9d\t%11d\n", i+1, (*player)->Games->title, (*player)->Games->publisher, (*player)->Games->genre, (*player)->Games->price, (*player)->Games->rating);
+            printf("|%-2d\t%-20s\t%11s\t%9s\t%9d\t%11d\n", j+1, (*player)->Games->title, (*player)->Games->publisher, (*player)->Games->genre, (*player)->Games->price, (*player)->Games->rating);
             found = 1;
         }
         current = current->next;
@@ -478,7 +459,7 @@ void loginUser(user **player, int numPlayer) {
     }
 }
 void loginPageMenu(user **player) {
-    
+    getch();
     int pilihan, trigger = 0;
     system("cls");
     printf(" _    _      _                            _____     \n");
