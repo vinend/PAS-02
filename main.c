@@ -38,7 +38,7 @@ struct User{
 
 
 
-void TampilkanData(user **player[], int loginKey);
+void libraryMenu(user **player[], int loginKey);
 GamesPtr swap( GamesPtr ptr1, GamesPtr ptr2);
 void string_to_lower(char *str);
 void pilihSort(user **player, int jumlahData);
@@ -111,13 +111,30 @@ void readGamesFromFileForUser(user *player) {
 
     fclose(file);
 }
+void lihatData(user *player[], int loginKey) {
+    int i = 0;
+    printf("Data:\n");
+    printf("_________________________________________________________________________________________________\n");
+    printf("|No\tTitle Game\t\tPublisher\tGenre\tHarga\tRating                               \n");
+    printf("|_______________________________________________________________________________________________|\n");
 
-void TampilkanData(user **player[], int loginKey){
+    NodeGames *currentGame = player[loginKey]->Games;
+    while (currentGame != NULL) {
+        printf("|%-2d\t%-20s\t%11s\t%9s\t%9.2f\t%9.2f\n", i+1, currentGame->title, currentGame->publisher, currentGame->genre, currentGame->price, currentGame->rating);
+        currentGame = currentGame->next;
+        i++;
+    }
+    printf("|_______________________________________________________________________________________________|\n");
+    getch();
+}
+
+void libraryMenu(user **player[], int loginKey){
     int trigger = 0;
 
+    readGamesFromFileForUser((*player)[loginKey]);
+    
     do {
         int i = 0, pilihan, O = 0;
-        readGamesFromFileForUser((*player)[loginKey]);
 
         printf("Data:\n");
         printf("_________________________________________________________________________________________________\n");
@@ -139,18 +156,30 @@ void TampilkanData(user **player[], int loginKey){
         printf(" +-------------------------------------------------+\n");
         printf(" | No. |              OPSI                         |\n");
         printf(" +-----+-------------------------------------------+\n");
-        printf(" |  1  | Sorting Data                              |\n");
+        printf(" |  1  | Lihat Game                                |\n");
         printf(" +-----+-------------------------------------------+\n");
-        printf(" |  2  | Searching Data                            |\n");
+        printf(" |  2  | Sorting Game                              |\n");
+        printf(" +-----+-------------------------------------------+\n");
+        printf(" |  3  | Search Game                               |\n");
+        printf(" +-----+-------------------------------------------+\n");
+        printf(" |  4  | Shop for Games                            |\n");
+        printf(" +-----+-------------------------------------------+\n");
+        printf(" |  5. | Publish a Game                            |\n");
+        printf(" +-----+-------------------------------------------+\n");
+        printf(" |  6. | User Settings                             |\n");
         printf(" +-----+-------------------------------------------+\n");
         printf("Pilih Opsi: "); scanf("%d", &pilihan);
 
         switch(pilihan) {
-            case 1 : 
+            
+            case 1 :
+            lihatData(player[loginKey], i);
+            
+            case 2 : 
             pilihSort(player[loginKey], i);
             break;
 
-            case 2 : 
+            case 3 : 
             pilihSearch(player[loginKey], i);
             break;
 
@@ -263,19 +292,29 @@ void FrontBackSplit(GamesPtr source, GamesPtr* frontRef, GamesPtr* backRef) {
         *backRef = NULL;
         return;
     }
+
     slow = source;
     fast = source->next;
-    while (fast != NULL) {
-        fast = fast->next;
-        if (fast != NULL) {
-            slow = slow->next;
-            fast = fast->next;
+
+    #pragma omp parallel shared(fast)
+    {
+        while (fast != NULL) {
+            #pragma omp single nowait
+            {
+                fast = fast->next;
+                if (fast != NULL) {
+                    slow = slow->next;
+                    fast = fast->next;
+                }
+            }
         }
     }
+    
     *frontRef = source;
     *backRef = slow->next;
     slow->next = NULL;
 }
+
 
 GamesPtr SortedMerge(GamesPtr a, GamesPtr b, int pilihan) {
     GamesPtr result = NULL;
@@ -284,7 +323,7 @@ GamesPtr SortedMerge(GamesPtr a, GamesPtr b, int pilihan) {
     else if (b == NULL)
         return a;
 
-    if (pilihan == 1) {  // Sorting by rating
+    if (pilihan == 1) {
         if (a->rating <= b->rating) {
             result = a;
             result->next = SortedMerge(a->next, b, pilihan);
@@ -292,7 +331,7 @@ GamesPtr SortedMerge(GamesPtr a, GamesPtr b, int pilihan) {
             result = b;
             result->next = SortedMerge(a, b->next, pilihan);
         }
-    } else {  // Sorting by price
+    } else {
         if (a->price <= b->price) {
             result = a;
             result->next = SortedMerge(a->next, b, pilihan);
@@ -312,15 +351,22 @@ void MergeSort(GamesPtr* headRef, int pilihan) {
         return;
     }
 
-    FrontBackSplit(head, &a, &b);  // Split into two halves
+    FrontBackSplit(head, &a, &b);  
 
-    MergeSort(&a, pilihan);  // Sort first half
-    MergeSort(&b, pilihan);  // Sort second half
+    #pragma omp parallel sections
+    {
+        #pragma omp section
+        {
+            MergeSort(&a, pilihan);  
+        }
+        #pragma omp section
+        {
+            MergeSort(&b, pilihan);
+        }
+    }
 
-    *headRef = SortedMerge(a, b, pilihan);  // Merge back together
+    *headRef = SortedMerge(a, b, pilihan); 
 }
-
-
 void searchingString(user **player, char* namaDicari, int i){
     int j = 0;
     GamesPtr current = (*player)->Games;
@@ -362,6 +408,7 @@ void searchingString(user **player, char* namaDicari, int i){
 
     getch(); system("cls");
 }
+
 
 void flushInput() {
     int c;
@@ -446,7 +493,7 @@ void loginUser(user **player, int numPlayer) {
         }
 
         if (found) {
-            TampilkanData(&player, loginKey);
+            libraryMenu(&player, loginKey);
             break; 
         } else {
             printf("We couldn't find your username / The password is wrong. You have %d attempts left.\n", 2 - trigger);
