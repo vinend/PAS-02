@@ -47,8 +47,8 @@ void sortingRating(user **player, int jumlahData);
 void sortingHarga(user **player, int jumlahData);
 void searchingString(user **player, char* namaDicari, int i);
 void FrontBackSplit(GamesPtr source, GamesPtr* frontRef, GamesPtr* backRef);
-GamesPtr SortedMerge(GamesPtr a, GamesPtr b, int pilihan);
-void MergeSort(GamesPtr* headRef, int pilihan) ;
+GamesPtr SortedMerge(GamesPtr a, GamesPtr b, int pilihan, int PilihanSort);
+void MergeSort(GamesPtr* headRef, int pilihan, int PilihanSort) ;
 
 void readPlayersFromFile(user **players, int *numPlayers) {
     FILE *file = fopen("players.txt", "r");
@@ -111,10 +111,11 @@ void readGamesFromFileForUser(user *player) {
 
     fclose(file);
 }
-void lihatData(user *player[], int loginKey) {
+
+void lihatData(user **player, int loginKey) {
     int i = 0;
 
-    GamesPtr current = player[loginKey]->Games;
+    NodeGames *current = (*player)->Games;
 
     printf("Data:\n");
     printf("_________________________________________________________________________________________________\n");
@@ -122,7 +123,7 @@ void lihatData(user *player[], int loginKey) {
     printf("|_______________________________________________________________________________________________|\n");
 
     while (current != NULL) {
-        printf("|%-2d\t%-20s\t%11s\t%9s\t%9.2f\t%11.2f\n", i+1, (*player)->Games->title, (*player)->Games->publisher, (*player)->Games->genre, (*player)->Games->price, (*player)->Games->rating);
+        printf("|%-2d\t%-20s\t%11s\t%9s\t%9.2f\t%11.2f\n", i+1, current->title, current->publisher, current->genre, current->price, current->rating);
         i++;
         current = current->next;
         }
@@ -132,26 +133,27 @@ void lihatData(user *player[], int loginKey) {
 
 void libraryMenu(user **player[], int loginKey){
     int trigger = 0;
+    int i = 0, pilihan, O = 0;
 
     readGamesFromFileForUser((*player)[loginKey]);
+
+    printf("Data:\n");
+    printf("_________________________________________________________________________________________________\n");
+    printf("|No\tTitle Game\t\tPublisher\tGenre\tHarga\tRating                               \n");
+    printf("|_______________________________________________________________________________________________|\n");
+
+    NodeGames *currentGame = (*player)[loginKey]->Games;
+    while (currentGame != NULL) {
+        printf("|%-2d\t%-20s\t%11s\t%9s\t%9.2f\t%9.2f\n", i+1, currentGame->title, currentGame->publisher, currentGame->genre, currentGame->price, currentGame->rating);
+        currentGame = currentGame->next;
+        i++;
+    }
+    printf("|_______________________________________________________________________________________________|\n");
+    getch();
     
     do {
         int i = 0, pilihan, O = 0;
-
-        printf("Data:\n");
-        printf("_________________________________________________________________________________________________\n");
-        printf("|No\tTitle Game\t\tPublisher\tGenre\tHarga\tRating                               \n");
-        printf("|_______________________________________________________________________________________________|\n");
-
         NodeGames *currentGame = (*player)[loginKey]->Games;
-        while (currentGame != NULL) {
-            printf("|%-2d\t%-20s\t%11s\t%9s\t%9.2f\t%9.2f\n", i+1, currentGame->title, currentGame->publisher, currentGame->genre, currentGame->price, currentGame->rating);
-            currentGame = currentGame->next;
-            i++;
-        }
-        printf("|_______________________________________________________________________________________________|\n");
-        getch();
-
         system("cls");
         printf(" +-------------------------------------------------+\n");
         printf(" |          SELAMAT DATANG DI GAME LIBRARY         |\n");
@@ -211,7 +213,8 @@ void string_to_lower(char *str) {
 }
 
 void pilihSort(user **player, int jumlahData){
-    int pilihan;
+    system("cls");
+    int pilihan, pilihanSort;
     printf(" +-------------------------------------------------+\n");
     printf(" |          SELAMAT DATANG DI GAME LIBRARY         |\n");
     printf(" +-------------------------------------------------+\n");
@@ -221,15 +224,26 @@ void pilihSort(user **player, int jumlahData){
     printf(" +-----+-------------------------------------------+\n");
     printf(" |  2  | Sorting Harga                             |\n");
     printf(" +-----+-------------------------------------------+\n");
+    printf(" |  3  | Sorting Nama                              |\n");
+    printf(" +-----+-------------------------------------------+\n");
+    printf(" |  4  | Sorting Genre                             |\n");
+    printf(" +-----+-------------------------------------------+\n");
+    printf(" |  5  | Sorting Publisher                         |\n");
+    printf(" +-----+-------------------------------------------+\n");
     printf("Pilih Opsi: "); scanf("%d", &pilihan);
+    printf("Mau Naik Atau Turun (1 = Naik, 2 = Turun) : "); scanf("%d", &pilihanSort);
 
     switch(pilihan) {
             case 1 : 
-            MergeSort(&(*player)->Games, pilihan);
-            break;
 
             case 2 : 
-            MergeSort(&(*player)->Games, pilihan);
+
+            case 3 : 
+
+            case 4 : 
+
+            case 5 : 
+            MergeSort(&(*player)->Games, pilihan, pilihanSort);
             break;
 
             default :
@@ -241,6 +255,7 @@ void pilihSort(user **player, int jumlahData){
 }
 
 void pilihSearch(user **player, int jumlahData){
+    system("cls");
     int pilihan;
     char Searching[100];
 
@@ -319,7 +334,7 @@ void FrontBackSplit(GamesPtr source, GamesPtr* frontRef, GamesPtr* backRef) {
 }
 
 
-GamesPtr SortedMerge(GamesPtr a, GamesPtr b, int pilihan) {
+GamesPtr SortedMerge(GamesPtr a, GamesPtr b, int pilihan, int PilihanSort) {
     GamesPtr result = NULL;
     if (a == NULL)
         return b;
@@ -327,26 +342,112 @@ GamesPtr SortedMerge(GamesPtr a, GamesPtr b, int pilihan) {
         return a;
 
     if (pilihan == 1) {
-        if (a->rating <= b->rating) {
-            result = a;
-            result->next = SortedMerge(a->next, b, pilihan);
-        } else {
-            result = b;
-            result->next = SortedMerge(a, b->next, pilihan);
+        if (PilihanSort == 1){
+            if (a->rating <= b->rating) {
+                result = a;
+                result->next = SortedMerge(a->next, b, pilihan, PilihanSort);
+            } else {
+                result = b;
+                result->next = SortedMerge(a, b->next, pilihan, PilihanSort);
+            }
         }
-    } else {
-        if (a->price <= b->price) {
-            result = a;
-            result->next = SortedMerge(a->next, b, pilihan);
-        } else {
-            result = b;
-            result->next = SortedMerge(a, b->next, pilihan);
+        else if (PilihanSort == 2){
+            if (a->rating >= b->rating) {
+                result = a;
+                result->next = SortedMerge(a->next, b, pilihan, PilihanSort);
+            } else {
+                result = b;
+                result->next = SortedMerge(a, b->next, pilihan, PilihanSort);
+            }
         }
+    } 
+    else if (pilihan == 2) {
+        if (PilihanSort == 1){
+            if (a->price <= b->price) {
+                result = a;
+                result->next = SortedMerge(a->next, b, pilihan, PilihanSort);
+            } else {
+                result = b;
+                result->next = SortedMerge(a, b->next, pilihan, PilihanSort);
+            }
+        }
+        else if (PilihanSort == 2){
+            if (a->price >= b->price) {
+                result = a;
+                result->next = SortedMerge(a->next, b, pilihan, PilihanSort);
+            } else {
+                result = b;
+                result->next = SortedMerge(a, b->next, pilihan, PilihanSort);
+            }
+        }
+    }
+    else if (pilihan == 3){
+        if (PilihanSort == 1){
+            if (strcmp(a->title, b->title) < 0){
+                result = a;
+                result->next = SortedMerge(a->next, b, pilihan, PilihanSort);
+            } else {
+                result = b;
+                result->next = SortedMerge(a, b->next, pilihan, PilihanSort);
+            }
+        }
+        else if (PilihanSort == 2){
+            if (strcmp(a->title, b->title) > 0){
+                result = a;
+                result->next = SortedMerge(a->next, b, pilihan, PilihanSort);
+            } else {
+                result = b;
+                result->next = SortedMerge(a, b->next, pilihan, PilihanSort);
+            }
+        }
+    }
+    else if (pilihan == 4){
+        if (PilihanSort == 1){
+            if (strcmp(a->title, b->title) < 0){
+                result = a;
+                result->next = SortedMerge(a->next, b, pilihan, PilihanSort);
+            } else {
+                result = b;
+                result->next = SortedMerge(a, b->next, pilihan, PilihanSort);
+            }
+        }
+        else if (PilihanSort == 2){
+            if (strcmp(a->title, b->title) > 0){
+                result = a;
+                result->next = SortedMerge(a->next, b, pilihan, PilihanSort);
+            } else {
+                result = b;
+                result->next = SortedMerge(a, b->next, pilihan, PilihanSort);
+            }
+        }
+    }
+    else if (pilihan == 5){
+        if (PilihanSort == 1){
+            if (strcmp(a->title, b->title) < 0){
+                result = a;
+                result->next = SortedMerge(a->next, b, pilihan, PilihanSort);
+            } else {
+                result = b;
+                result->next = SortedMerge(a, b->next, pilihan, PilihanSort);
+            }
+        }
+        else if (PilihanSort == 2){
+            if (strcmp(a->title, b->title) > 0){
+                result = a;
+                result->next = SortedMerge(a->next, b, pilihan, PilihanSort);
+            } else {
+                result = b;
+                result->next = SortedMerge(a, b->next, pilihan, PilihanSort);
+            }
+        }
+    }
+    else {
+        printf("Pilihan diluar yang disediakan, silahkan masukkan ulang !");
     }
     return result;
 }
 
-void MergeSort(GamesPtr* headRef, int pilihan) {
+void MergeSort(GamesPtr* headRef, int pilihan, int PilihanSort) {
     GamesPtr head = *headRef;
     GamesPtr a;
     GamesPtr b;
@@ -360,16 +461,17 @@ void MergeSort(GamesPtr* headRef, int pilihan) {
     {
         #pragma omp section
         {
-            MergeSort(&a, pilihan);  
+            MergeSort(&a, pilihan, PilihanSort);  
         }
         #pragma omp section
         {
-            MergeSort(&b, pilihan);
+            MergeSort(&b, pilihan, PilihanSort);
         }
     }
 
-    *headRef = SortedMerge(a, b, pilihan); 
+    *headRef = SortedMerge(a, b, pilihan, PilihanSort); 
 }
+
 void searchingString(user **player, char* namaDicari, int i){
     int j = 0;
     GamesPtr current = (*player)->Games;
@@ -395,7 +497,7 @@ void searchingString(user **player, char* namaDicari, int i){
         }
         string_to_lower(currentNameLower);
         if (strstr(currentNameLower, namaDicari) != NULL) {
-            printf("|%-2d\t%-20s\t%11s\t%9s\t%9d\t%11d\n", j+1, (*player)->Games->title, (*player)->Games->publisher, (*player)->Games->genre, (*player)->Games->price, (*player)->Games->rating);
+            printf("|%-2d\t%-20s\t%11s\t%9s\t%9.2f\t%11.2f\n", j+1, current->title, current->publisher, current->genre, current->price, current->rating);
             found = 1;
         }
         current = current->next;
