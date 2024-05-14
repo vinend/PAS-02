@@ -113,17 +113,19 @@ void readGamesFromFileForUser(user *player) {
 }
 void lihatData(user *player[], int loginKey) {
     int i = 0;
+
+    GamesPtr current = player[loginKey]->Games;
+
     printf("Data:\n");
     printf("_________________________________________________________________________________________________\n");
     printf("|No\tTitle Game\t\tPublisher\tGenre\tHarga\tRating                               \n");
     printf("|_______________________________________________________________________________________________|\n");
 
-    NodeGames *currentGame = player[loginKey]->Games;
-    while (currentGame != NULL) {
-        printf("|%-2d\t%-20s\t%11s\t%9s\t%9.2f\t%9.2f\n", i+1, currentGame->title, currentGame->publisher, currentGame->genre, currentGame->price, currentGame->rating);
-        currentGame = currentGame->next;
+    while (current != NULL) {
+        printf("|%-2d\t%-20s\t%11s\t%9s\t%9.2f\t%11.2f\n", i+1, (*player)->Games->title, (*player)->Games->publisher, (*player)->Games->genre, (*player)->Games->price, (*player)->Games->rating);
         i++;
-    }
+        current = current->next;
+        }
     printf("|_______________________________________________________________________________________________|\n");
     getch();
 }
@@ -174,6 +176,7 @@ void libraryMenu(user **player[], int loginKey){
             
             case 1 :
             lihatData(player[loginKey], i);
+            break;
             
             case 2 : 
             pilihSort(player[loginKey], i);
