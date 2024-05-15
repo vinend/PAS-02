@@ -36,6 +36,9 @@ struct shopGames {
     struct shopGames* next;
 };
 
+typedef struct shopGames NodeShop;
+typedef struct shopGames *ShopPtr;
+
 typedef struct User user;
 typedef struct videoGames NodeGames;
 typedef NodeGames *GamesPtr;
@@ -85,6 +88,33 @@ void readPlayersFromFile(user **players, int *numPlayers) {
 
     fclose(file);
     *numPlayers = index;
+}
+
+void readShopFromFile(NodeShop **shop, int *numShop) {
+    FILE *file = fopen("shop.txt", "r");
+    if (!file) {
+        printf("Failed to open the file.\n");
+        return;
+    }
+
+    char buffer[1024];
+    int index = 0;
+    NodeShop *newShop;
+
+    while (fgets(buffer, sizeof(buffer), file) != NULL) {
+        newShop = (NodeShop *)malloc(sizeof(NodeShop));
+        if (sscanf(buffer, "Game: %99[^,], %99[^,], %999[^,], %99[^,], %f, %f",
+            newShop->title, newShop->genre, newShop->desc, newShop->publisher, &newShop->rating, &newShop->price) == 6) {
+                newShop->next = (*shop);
+                (*shop) = newShop;
+        } else {
+            fprintf(stderr, "Failed to parse game data: %s\n", buffer);
+            free(newShop);
+        }
+    }
+
+    fclose(file);
+    *numShop = index;
 }
 
 void readGamesFromFileForUser(user *player) {
@@ -748,7 +778,8 @@ void menuShopGames(user **player) {
 int main() {
 
     user **player;
-    int maxPlayer = 100;  
+    NodeShop **shop;
+    int maxPlayer = 100, maxShop;  
     int pilihan, trigger = 0;
 
     player = (user **)malloc(maxPlayer * sizeof(user *));
@@ -757,6 +788,7 @@ int main() {
         return EXIT_FAILURE;
     }
 
+    readShopFromFile(shop, &maxShop);
     readPlayersFromFile(player, &maxPlayer);
     
     for(int i = 0; i < maxPlayer; i++) {
