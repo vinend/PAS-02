@@ -26,6 +26,16 @@ struct videoGames{
 
 };
 
+struct shopGames {
+    char title[100];
+    char genre[100];
+    char desc[1000];
+    char publisher[100];
+    float rating;
+    float price;
+    struct shopGames* next;
+};
+
 typedef struct User user;
 typedef struct videoGames NodeGames;
 typedef NodeGames *GamesPtr;
@@ -135,8 +145,6 @@ void libraryMenu(user **player[], int loginKey){
     int trigger = 0;
     int i = 0, pilihan, O = 0;
 
-    readGamesFromFileForUser((*player)[loginKey]);
-
     printf("Data:\n");
     printf("_________________________________________________________________________________________________\n");
     printf("|No\tTitle Game\t\tPublisher\tGenre\tHarga\tRating                               \n");
@@ -172,6 +180,8 @@ void libraryMenu(user **player[], int loginKey){
         printf(" +-----+-------------------------------------------+\n");
         printf(" |  6. | User Settings                             |\n");
         printf(" +-----+-------------------------------------------+\n");
+        printf(" |  7. | Logging Out                               |\n");
+        printf(" +-----+-------------------------------------------+\n");
         printf("Pilih Opsi: "); scanf("%d", &pilihan);
 
         switch(pilihan) {
@@ -186,6 +196,14 @@ void libraryMenu(user **player[], int loginKey){
 
             case 3 : 
             pilihSearch(player[loginKey], i);
+            break;
+
+            case 6 : 
+            userSettings((*player)[loginKey]);
+            break;
+
+            case 7 :
+            trigger = 1;
             break;
 
             default :
@@ -658,6 +676,75 @@ void loginPageMenu(user **player) {
 
 }
 
+void userSettings(user *player) {
+    int trigger = 0, found = 0;
+    char bufferPassword[100], newPassword[100];
+
+    system("cls");
+    printf("||         Please Enter Your Password Again         ||\n");
+
+    while (trigger < 3 && !found) {
+        system("cls");
+        printf("Enter Password: ");
+        scanf(" %99s", bufferPassword);
+
+        if (strcmp(bufferPassword, player->password) == 0) {
+            printf("Login Successful!\n");
+            found = 1;
+            break;
+        } else {
+            printf("The password is wrong. You have %d attempts left.\n", 2 - trigger);
+            getch();
+            trigger++;
+        }
+
+        if (trigger == 3) {
+            printf("Maximum login attempts exceeded.\n");
+            return;
+        }
+    }
+
+    if (found) {
+        printf("Enter new password: ");
+        scanf(" %99s", newPassword);
+        strcpy(player->password, newPassword);
+        printf("Password updated successfully!\n");
+    }
+}
+
+
+void menuShopGames(user **player) {
+    
+    int pilihan, trigger = 0;
+
+    do {
+    system("cls");
+    printf(" +-------------------------------------------------+\n");
+    printf(" |          SELAMAT DATANG DI GAME SHOP            |\n");
+    printf(" +-------------------------------------------------+\n");
+    printf(" | No. |              OPSI                         |\n");
+    printf(" +-----+-------------------------------------------+\n");
+    printf(" |  1  | Shop For Games                            |\n");
+    printf(" +-----+-------------------------------------------+\n");
+    printf(" |  2  |                                           |\n");
+    printf(" +-----+-- -----------------------------------------+\n");
+    printf(" |  3  | Exit Program                              |\n");
+    printf(" +-----+-------------------------------------------+\n");
+
+    switch(pilihan) {
+        case 1 :
+            break;
+        case 2 :
+            break;
+        case 3 :
+            break;
+        default :
+            break;
+
+    }
+    } while(trigger == 0);
+}
+
 int main() {
 
     user **player;
@@ -671,6 +758,11 @@ int main() {
     }
 
     readPlayersFromFile(player, &maxPlayer);
+    
+    for(int i = 0; i < maxPlayer; i++) {
+    readGamesFromFileForUser(&(*player)[i]);
+    }
+
     loginPageMenu(player);
     return 0;
 
