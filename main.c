@@ -61,7 +61,7 @@ GamesPtr SortedMerge(GamesPtr a, GamesPtr b, int pilihan, int PilihanSort);
 void MergeSort(GamesPtr* headRef, int pilihan, int PilihanSort);
 void readPlayersFromFile(user **players, int *numPlayers);
 void readGamesFromFileForUsers(user **players, int numPlayers);
-void lihatData(user **player, int loginKey);
+void lihatData(user **player[], int loginKey);
 void userSettings(user *player);
 void flushInput();
 void randomPassGen(char *pass, int length);
@@ -133,23 +133,34 @@ void readGamesFromFileForUsers(user **players, int numPlayers) {
     fclose(file);
 }
 
-void lihatData(user **player, int loginKey) {
+void lihatData(user **player[], int loginKey) {
+    if (player == NULL || *player == NULL) {
+        printf("Error: Player data is not available.\n");
+        return;
+    }
+    if ((*player)[loginKey]->Games == NULL) {
+        printf("No games in your library for %s.\n", (*player)[loginKey]->gamerTag);
+        return;
+    }
+
     int i = 0;
+    NodeGames *current = (*player)[loginKey]->Games;
 
-    NodeGames *current = (*player)->Games;
-
-    printf("Data:\n");
+    printf("Data for %s:\n", (*player)[loginKey]->gamerTag);
     printf("_________________________________________________________________________________________________\n");
-    printf("|No\tTitle Game\t\tPublisher\tGenre\tHarga\tRating                               \n");
+    printf("|No\tTitle\t\tPublisher\tGenre\tPrice\tRating\n");
     printf("|_______________________________________________________________________________________________|\n");
 
     while (current != NULL) {
-        printf("|%-2d\t%-20s\t%11s\t%9s\t%9.2f\t%11.2f\n", i+1, current->title, current->publisher, current->genre, current->price, current->rating);
+        printf("|%-2d\t%-20s\t%-15s\t%-10s\t%-5.2f\t%-5.2f|\n", i+1, current->title, current->publisher, current->genre, current->price, current->rating);
         i++;
         current = current->next;
-        }
+    }
     printf("|_______________________________________________________________________________________________|\n");
     getch();
+    printf("Press Enter to continue...\n");
+    fflush(stdout); // Ensure all output is printed before blocking for input
+    while(getchar() != '\n'); // Wait for Enter key to be pressed
 }
 
 void libraryMenu(user **player[], int loginKey){
@@ -198,15 +209,15 @@ void libraryMenu(user **player[], int loginKey){
         switch(pilihan) {
             
             case 1 :
-            lihatData(player[loginKey], i);
+            lihatData(player, loginKey);
             break;
             
             case 2 : 
-            pilihSort(player[loginKey], i);
+            pilihSort(player[loginKey], loginKey);
             break;
 
             case 3 : 
-            pilihSearch(player[loginKey], i);
+            pilihSearch(player[loginKey], loginKey);
             break;
 
             case 6 : 

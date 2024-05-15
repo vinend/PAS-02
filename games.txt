@@ -1,8 +1,8 @@
+GamerTag: BantalEmak; Game: The Witcher 3, RPG, Geralt of Rivia a monster hunter is on a journey to find his adopted daughter, CD Projekt Red, 4.8, 29.99
+GamerTag: BantalEmak; Game: Cyberpunk 2077, RPG, An open-world action-adventure story set in Night City a megalopolis, CD Projekt Red, 3.5, 59.99
 GamerTag: lerainfrog; Game: Horizon Zero Dawn, Action, In a lush post-apocalyptic world humans live in primitive tribal societies, Sony Interactive, 4.9, 49.99
 GamerTag: lerainfrog; Game: God of War, Action, A new beginning for Kratos living as a man outside the shadow of the gods, Sony Interactive, 4.8, 39.99
 GamerTag: lerainfrog; Game: The Last of Us Part II, Action, Joel and Ellie continue their journey through the post-apocalyptic United States, Naughty Dog, 4.7, 59.99
 GamerTag: lerainfrog; Game: Uncharted 4: A Thief's End, Adventure, Nathan Drake embarks on a quest in pursuit of a historical conspiracy behind a fabled pirate treasure, Naughty Dog, 4.6, 29.99
-GamerTag: BantalEmak; Game: The Witcher 3, RPG, Geralt of Rivia, a monster hunter, is on a journey to find his adopted daughter, CD Projekt Red, 4.8, 29.99
-GamerTag: BantalEmak; Game: Cyberpunk 2077, RPG, An open-world action-adventure story set in Night City a megalopolis, CD Projekt Red, 3.5, 59.99
 GamerTag: ferroDactyl; Game: Stardew Valley, Simulation, Manage your grandfather's dilapidated farm to its former glory, ConcernedApe, 4.6, 14.99
 GamerTag: ferroDactyl; Game: Terraria, Adventure, Dig fight explore build! Nothing is impossible in this action-packed adventure game, Re-Logic, 4.5, 9.99
