@@ -49,7 +49,7 @@ struct User{
 
 
 void libraryMenu(user **player[], int loginKey);
-GamesPtr swap( GamesPtr ptr1, GamesPtr ptr2);
+GamesPtr swap(GamesPtr ptr1, GamesPtr ptr2);
 void string_to_lower(char *str);
 void pilihSort(user **player, int jumlahData);
 void pilihSearch(user **player, int jumlahData);
@@ -58,7 +58,17 @@ void sortingHarga(user **player, int jumlahData);
 void searchingString(user **player, char* namaDicari, int i);
 void FrontBackSplit(GamesPtr source, GamesPtr* frontRef, GamesPtr* backRef);
 GamesPtr SortedMerge(GamesPtr a, GamesPtr b, int pilihan, int PilihanSort);
-void MergeSort(GamesPtr* headRef, int pilihan, int PilihanSort) ;
+void MergeSort(GamesPtr* headRef, int pilihan, int PilihanSort);
+void readPlayersFromFile(user **players, int *numPlayers);
+void readGamesFromFileForUsers(user **players, int numPlayers);
+void lihatData(user **player, int loginKey);
+void userSettings(user *player);
+void flushInput();
+void randomPassGen(char *pass, int length);
+void createUser(user **playerLogin);
+void loginUser(user **player, int numPlayer);
+void loginPageMenu(user **player);
+void menuShopGames(user **player);
 
 void readPlayersFromFile(user **players, int *numPlayers) {
     FILE *file = fopen("players.txt", "r");
@@ -87,7 +97,7 @@ void readPlayersFromFile(user **players, int *numPlayers) {
     *numPlayers = index;
 }
 
-void readGamesFromFileForUser(user *player) {
+void readGamesFromFileForUsers(user **players, int numPlayers) {
     FILE *file = fopen("games.txt", "r");
     if (!file) {
         perror("Failed to open the file");
@@ -107,11 +117,12 @@ void readGamesFromFileForUser(user *player) {
 
         if (sscanf(buffer, "GamerTag: %99[^;]; Game: %99[^,], %99[^,], %999[^,], %99[^,], %f, %f",
             gamerTag, newGame->title, newGame->genre, newGame->desc, newGame->publisher, &newGame->rating, &newGame->price) == 7) {
-            if (strcmp(player->gamerTag, gamerTag) == 0) {
-                newGame->next = player->Games;
-                player->Games = newGame;
-            } else {
-                free(newGame);
+            for (int i = 0; i < numPlayers; i++) {
+                if (strcmp(players[i]->gamerTag, gamerTag) == 0) {
+                    newGame->next = players[i]->Games;
+                    players[i]->Games = newGame;
+                    break;
+                }
             }
         } else {
             fprintf(stderr, "Failed to parse game data: %s\n", buffer);
@@ -746,24 +757,19 @@ void menuShopGames(user **player) {
 }
 
 int main() {
-
-    user **player;
-    int maxPlayer = 100;  
+    user **players;
+    int numPlayers = 100;  
     int pilihan, trigger = 0;
 
-    player = (user **)malloc(maxPlayer * sizeof(user *));
-    if (player == NULL) {
+    players = (user **)malloc(numPlayers * sizeof(user *));
+    if (players == NULL) {
         fprintf(stderr, "Failed to allocate memory for players.\n");
         return EXIT_FAILURE;
     }
 
-    readPlayersFromFile(player, &maxPlayer);
-    
-    for(int i = 0; i < maxPlayer; i++) {
-    readGamesFromFileForUser(&(*player)[i]);
-    }
+    readPlayersFromFile(players, &numPlayers);
+    readGamesFromFileForUsers(players, numPlayers);
 
-    loginPageMenu(player);
+    loginPageMenu(players);
     return 0;
-
 }
