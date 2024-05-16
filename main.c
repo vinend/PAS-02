@@ -47,7 +47,7 @@ struct User{
 };
 
 
-
+void appendUser(const char username[], const char password[]);
 void libraryMenu(user **player[], int loginKey, NodeGames *Shop);
 GamesPtr swap(GamesPtr ptr1, GamesPtr ptr2);
 void string_to_lower(char *str);
@@ -66,9 +66,9 @@ void lihatData(user **player[], int loginKey);
 void userSettings(user *player);
 void flushInput();
 void randomPassGen(char *pass, int length);
-void createUser(user **playerLogin);
+void createUser(user **playerLogin, int *numPlayerLogin);
 void loginUser(user **player, int numPlayer, NodeGames *Shop);
-void loginPageMenu(user **player, NodeGames *Shop);
+void loginPageMenu(user **player, NodeGames *Shop, int numPlayers);
 void menuShopGames(user **player[], NodeGames *Shop, int Data);
 
 void readPlayersFromFile(user **players, int *numPlayers) {
@@ -651,7 +651,9 @@ void randomPassGen(char *pass, int length) {
     pass[length] = '\0';
 }
 
-void createUser(user **playerLogin) {
+void createUser(user **playerLogin, int *numPlayersLogin) {
+    char bufferUsername[100];
+    char bufferPassword[100];
     user *newUser = (user*)malloc(sizeof(user));
     if (newUser == NULL) {
         printf("Memory allocation failed.\n");
@@ -690,20 +692,42 @@ void createUser(user **playerLogin) {
         }
     } while (trigger == 0);
 
+    strcpy(bufferUsername, newUser->gamerTag);
+    strcpy(bufferPassword, newUser->password);
+
+    appendUser(bufferUsername, bufferPassword);
+    
     system("cls");
     
     newUser->Games = NULL;
-    *playerLogin = newUser; 
+    *playerLogin = newUser;
+    *numPlayersLogin += 1; 
 }
+
+void appendUser(const char username[], const char password[]) {
+    FILE *file = fopen("players.txt", "a");
+    if (file == NULL) {
+        perror("Failed to open file for appending");
+        return;
+    }
+
+    fprintf(file, "GamerTag: %s\n", username);
+    fprintf(file, "Password: %s\n", password);
+
+    fclose(file);
+}
+
+
 
 void loginUser(user **player, int numPlayer, NodeGames *Shop) {
     int trigger = 0, found = 0, loginKey = -1;
-    char bufferUsername[100], bufferPassword[100];
 
     system("cls");
     printf("||         USER LOGIN PAGE         ||\n");
 
-    while (trigger < 3 && !found) {
+    while (trigger < 3) {
+        system("cls");
+        char bufferUsername[100], bufferPassword[100];
         printf("Enter Username: ");
         scanf(" %99s", bufferUsername);
         printf("Enter Password: ");
@@ -718,23 +742,36 @@ void loginUser(user **player, int numPlayer, NodeGames *Shop) {
             }
         }
 
+
         if (found) {
             libraryMenu(&player, loginKey, Shop);
-            break; 
+            return; 
         } else {
             printf("We couldn't find your username / The password is wrong. You have %d attempts left.\n", 2 - trigger);
+            getch(); // Wait for user to press a key
             trigger++;
             if (trigger == 3) {
                 printf("Maximum login attempts exceeded.\n");
-                break;
+                getch(); // Wait for user to press a key
             }
         }
     }
+
+    // Return to the calling function (loginPageMenu) if login attempts are exhausted
+    if (!found) {
+        printf("Returning to the main menu...\n");
+        getch(); // Wait for user input before clearing the screen
+        system("cls");
+    }
 }
 
-void loginPageMenu(user **player, NodeGames *Shop) {
-    getch();
+
+void loginPageMenu(user **player, NodeGames *Shop, int numPlayers) {
     int pilihan, trigger = 0;
+    int numPlayersLogin;
+
+    numPlayersLogin = numPlayers;
+
     system("cls");
     printf(" _    _      _                            _____     \n");
     printf("| |  | |    | |                          |_   _|    \n");
@@ -747,42 +784,82 @@ void loginPageMenu(user **player, NodeGames *Shop) {
     getch();
     system("cls");
 
-
     do {
-    system("cls");
-    printf(" +-------------------------------------------------+\n");
-    printf(" |          SELAMAT DATANG DI GAME LIBRARY         |\n");
-    printf(" +-------------------------------------------------+\n");
-    printf(" | No. |              OPSI                         |\n");
-    printf(" +-----+-------------------------------------------+\n");
-    printf(" |  1  | Login User                                |\n");
-    printf(" +-----+-------------------------------------------+\n");
-    printf(" |  2  | Tambahkan User                            |\n");
-    printf(" +-----+-------------------------------------------+\n");
-    printf(" |  3  | Exit Program                              |\n");
-    printf(" +-----+-------------------------------------------+\n");
-    printf("Pilih Opsi: "); scanf("%d", &pilihan);
+        system("cls");
+        printf(" +-------------------------------------------------+\n");
+        printf(" |          SELAMAT DATANG DI GAME LIBRARY         |\n");
+        printf(" +-------------------------------------------------+\n");
+        printf(" | No. |              OPSI                         |\n");
+        printf(" +-----+-------------------------------------------+\n");
+        printf(" |  1  | Login User                                |\n");
+        printf(" +-----+-------------------------------------------+\n");
+        printf(" |  2  | Tambahkan User                            |\n");
+        printf(" +-----+-------------------------------------------+\n");
+        printf(" |  3  | Exit Program                              |\n");
+        printf(" +-----+-------------------------------------------+\n");
+        printf("Pilih Opsi: "); scanf("%d", &pilihan);
 
-    switch(pilihan) {
-        case 1 : loginUser(player, 100, Shop);
-        break;
+        switch(pilihan) {
+            case 1: 
+                loginUser(player, numPlayersLogin, Shop);
+                break;
 
-        case 2 : createUser(player);
-        break;
+            case 2: 
+                createUser(player, &numPlayersLogin);
+                break;
 
-        case 3 : trigger = 1;
-        break;
+            case 3: 
+                trigger = 1;
+                break;
 
-        default : printf("Please input the correct value!");
-        break;
-    }
-    } while(trigger == 0);
-
+            default: 
+                printf("Please input the correct value!");
+                getch();
+                break;
+        }
+    } while (trigger == 0);
 }
+
+
+void updatePasswordInFile(const char *gamerTag, const char *newPassword) {
+    FILE *file = fopen("players.txt", "r+");
+    if (!file) {
+        perror("Failed to open the file");
+        return;
+    }
+
+    char buffer[256];
+    long offset = 0;
+    int found = 0;
+
+    while (fgets(buffer, sizeof(buffer), file) != NULL) {
+        if (strstr(buffer, "GamerTag:") != NULL && strstr(buffer, gamerTag) != NULL) {
+            found = 1;
+            offset = ftell(file);
+            break;
+        }
+    }
+
+    if (found) {
+        // Move the file pointer to the position after the GamerTag line
+        fseek(file, offset, SEEK_SET);
+        // Skip the current password line
+        fgets(buffer, sizeof(buffer), file);
+        // Move the file pointer back to the beginning of the password line
+        fseek(file, -strlen(buffer), SEEK_CUR);
+        // Write the new password
+        fprintf(file, "Password: %s\n", newPassword);
+    } else {
+        printf("GamerTag not found.\n");
+    }
+
+    fclose(file);
+}
+
 
 void userSettings(user *player) {
     int trigger = 0, found = 0;
-    char bufferPassword[100], newPassword[100];
+    char bufferPassword[100], newPassword[100], bufferGamertag[100];
 
     system("cls");
     printf("||         Please Enter Your Password Again         ||\n");
@@ -812,7 +889,10 @@ void userSettings(user *player) {
         printf("Enter new password: ");
         scanf(" %99s", newPassword);
         strcpy(player->password, newPassword);
+        strcpy(player->gamerTag, bufferGamertag);
         printf("Password updated successfully!\n");
+
+        updatePasswordInFile(bufferGamertag, newPassword);
     }
 }
 
@@ -868,6 +948,8 @@ int main() {
     readGamesFromFileForUsers(players, numPlayers);
     readShopFromFileForUsers(&Shop);
 
-    loginPageMenu(players, Shop);
+    getch();
+
+    loginPageMenu(players, Shop, numPlayers);
     return 0;
 }
