@@ -71,6 +71,19 @@ void loginUser(user **player, int numPlayer, NodeGames *Shop);
 void loginPageMenu(user **player, NodeGames *Shop, int numPlayers);
 void menuShopGames(user **player[], NodeGames *Shop, int Data);
 void updatePasswordInFile(const char *gamerTag, const char *newPassword);
+void generateGameKey(char *key, int length);
+
+void generateGameKey(char *key, int length) {
+    char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    srand(time(NULL));
+
+    for (int i = 0; i < length; i++) {
+        int index = rand() % (sizeof(charset) - 1);
+        key[i] = charset[index];
+    }
+    key[length] = '\0';
+}
+
 
 void readPlayersFromFile(user **players, int *numPlayers) {
     FILE *file = fopen("players.txt", "r");
