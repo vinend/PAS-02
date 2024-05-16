@@ -97,7 +97,7 @@ void readPlayersFromFile(user **players, int *numPlayers) {
     *numPlayers = index;
 }
 
-void readGamesFromFileForUsers(user **players, int numPlayers) {
+void readGamesFromFileForUsers(user **Shop, int numPlayers) {
     FILE *file = fopen("games.txt", "r");
     if (!file) {
         perror("Failed to open the file");
@@ -106,7 +106,7 @@ void readGamesFromFileForUsers(user **players, int numPlayers) {
 
     char buffer[1024];
     char gamerTag[100];
-    NodeGames *newGame;
+    NodeGames *newShop;
 
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
         newGame = (NodeGames *)malloc(sizeof(NodeGames));
@@ -121,6 +121,42 @@ void readGamesFromFileForUsers(user **players, int numPlayers) {
                 if (strcmp(players[i]->gamerTag, gamerTag) == 0) {
                     newGame->next = players[i]->Games;
                     players[i]->Games = newGame;
+                    break;
+                }
+            }
+        } else {
+            fprintf(stderr, "Failed to parse game data: %s\n", buffer);
+            free(newGame);
+        }
+    }
+
+    fclose(file);
+}
+
+void readShopFromFileForUsers(NodeGames **Shop, int numPlayers) {
+    FILE *file = fopen("Shop.txt", "r");
+    if (!file) {
+        perror("Failed to open the file");
+        return;
+    }
+
+    char buffer[1024];
+    char gamerTag[100];
+    NodeGames *newShop;
+
+    while (fgets(buffer, sizeof(buffer), file) != NULL) {
+        newShop = (NodeGames *)malloc(sizeof(NodeGames));
+        if (!newGame) {
+            fprintf(stderr, "Memory allocation failed for new game\n");
+            continue;
+        }
+
+        if (sscanf(buffer, "GamerTag: %99[^;]; Game: %99[^,], %99[^,], %999[^,], %99[^,], %f, %f",
+            gamerTag, newGame->title, newGame->genre, newGame->desc, newGame->publisher, &newGame->rating, &newGame->price) == 7) {
+            for (int i = 0; i < numPlayers; i++) {
+                if (strcmp(players[i]->gamerTag, gamerTag) == 0) {
+                    newShop->next = Shop;
+                    Shop = newShop;
                     break;
                 }
             }
