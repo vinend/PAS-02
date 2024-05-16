@@ -33,6 +33,7 @@ struct shopGames {
     char publisher[100];
     float rating;
     float price;
+    char gameKey[21];
     struct shopGames* next;
 };
 
@@ -658,6 +659,7 @@ void flushInput() {
 void randomPassGen(char *pass, int length) {
     char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     srand(time(NULL));
+    #pragma omp parallel for
     for (int i = 0; i < length; i++) {
         int key = rand() % (int)(sizeof(charset) - 1);
         pass[i] = charset[key];
@@ -690,6 +692,7 @@ void createUser(user **playerLogin, int *numPlayersLogin) {
         flushInput();
 
         if (strcmp(buffer, "Yes") == 0) {
+            #pragma omp parallel
             randomPassGen(newUser->password, 10); 
             printf("Your suggested password is: %s\n", newUser->password);
             getch(); system("cls");
@@ -762,19 +765,18 @@ void loginUser(user **player, int numPlayer, NodeGames *Shop) {
             return; 
         } else {
             printf("We couldn't find your username / The password is wrong. You have %d attempts left.\n", 2 - trigger);
-            getch(); // Wait for user to press a key
+            getch(); 
             trigger++;
             if (trigger == 3) {
                 printf("Maximum login attempts exceeded.\n");
-                getch(); // Wait for user to press a key
+                getch(); 
             }
         }
     }
 
-    // Return to the calling function (loginPageMenu) if login attempts are exhausted
     if (!found) {
         printf("Returning to the main menu...\n");
-        getch(); // Wait for user input before clearing the screen
+        getch(); 
         system("cls");
     }
 }
