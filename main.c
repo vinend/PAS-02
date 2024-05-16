@@ -48,27 +48,28 @@ struct User{
 
 
 
-void libraryMenu(user **player[], int loginKey);
+void libraryMenu(user **player[], int loginKey, NodeGames *Shop);
 GamesPtr swap(GamesPtr ptr1, GamesPtr ptr2);
 void string_to_lower(char *str);
-void pilihSort(user **player, int jumlahData);
-void pilihSearch(user **player, int jumlahData);
+void pilihSort(user **player[], int jumlahData, int loginKey);
+void pilihSearch(user **player[], int jumlahData, int loginKey);
 void sortingRating(user **player, int jumlahData);
 void sortingHarga(user **player, int jumlahData);
-void searchingString(user **player, char* namaDicari, int i);
+void searchingString(user **player[], char* namaDicari, int i, int loginKey);
 void FrontBackSplit(GamesPtr source, GamesPtr* frontRef, GamesPtr* backRef);
 GamesPtr SortedMerge(GamesPtr a, GamesPtr b, int pilihan, int PilihanSort);
 void MergeSort(GamesPtr* headRef, int pilihan, int PilihanSort);
 void readPlayersFromFile(user **players, int *numPlayers);
 void readGamesFromFileForUsers(user **players, int numPlayers);
+void readShopFromFileForUsers(NodeGames **Shop);
 void lihatData(user **player[], int loginKey);
 void userSettings(user *player);
 void flushInput();
 void randomPassGen(char *pass, int length);
 void createUser(user **playerLogin);
-void loginUser(user **player, int numPlayer);
-void loginPageMenu(user **player);
-void menuShopGames(user **player);
+void loginUser(user **player, int numPlayer, NodeGames *Shop);
+void loginPageMenu(user **player, NodeGames *Shop);
+void menuShopGames(user **player[], NodeGames *Shop, int Data);
 
 void readPlayersFromFile(user **players, int *numPlayers) {
     FILE *file = fopen("players.txt", "r");
@@ -97,7 +98,7 @@ void readPlayersFromFile(user **players, int *numPlayers) {
     *numPlayers = index;
 }
 
-void readGamesFromFileForUsers(user **Shop, int numPlayers) {
+void readGamesFromFileForUsers(user **players, int numPlayers) {
     FILE *file = fopen("games.txt", "r");
     if (!file) {
         perror("Failed to open the file");
@@ -106,7 +107,7 @@ void readGamesFromFileForUsers(user **Shop, int numPlayers) {
 
     char buffer[1024];
     char gamerTag[100];
-    NodeGames *newShop;
+    NodeGames *newGame;
 
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
         newGame = (NodeGames *)malloc(sizeof(NodeGames));
@@ -133,40 +134,80 @@ void readGamesFromFileForUsers(user **Shop, int numPlayers) {
     fclose(file);
 }
 
-void readShopFromFileForUsers(NodeGames **Shop, int numPlayers) {
+NodeGames* createNode(char *Title, char *Genre, char *Desc, char *Publisher, int Rating, int Price) {
+    NodeGames* newNode = (NodeGames*)malloc(sizeof(NodeGames));
+    if (newNode == NULL) {
+        fprintf(stderr, "Error allocating memory\\n");
+        return NULL;
+    }
+    strcpy(newNode->title, Title);
+    strcpy(newNode->genre, Genre);
+    strcpy(newNode->desc, Desc);
+    strcpy(newNode->publisher, Publisher);
+    newNode->rating = Rating;
+    newNode->price = Price;
+    return newNode;
+}
+
+void readShopFromFileForUsers(NodeGames **Shop) {
     FILE *file = fopen("Shop.txt", "r");
     if (!file) {
-        perror("Failed to open the file");
+        fprintf(stderr, "Failed to open file\n");
         return;
     }
 
-    char buffer[1024];
-    char gamerTag[100];
-    NodeGames *newShop;
+    char buffer[1024]; // Increased buffer size to handle larger lines
+    NodeGames **nodePtr = Shop;
 
-    while (fgets(buffer, sizeof(buffer), file) != NULL) {
-        newShop = (NodeGames *)malloc(sizeof(NodeGames));
-        if (!newGame) {
-            fprintf(stderr, "Memory allocation failed for new game\n");
-            continue;
-        }
-
-        if (sscanf(buffer, "GamerTag: %99[^;]; Game: %99[^,], %99[^,], %999[^,], %99[^,], %f, %f",
-            gamerTag, newGame->title, newGame->genre, newGame->desc, newGame->publisher, &newGame->rating, &newGame->price) == 7) {
-            for (int i = 0; i < numPlayers; i++) {
-                if (strcmp(players[i]->gamerTag, gamerTag) == 0) {
-                    newShop->next = Shop;
-                    Shop = newShop;
-                    break;
-                }
+    while (fgets(buffer, sizeof(buffer), file)) {
+        char Title[50], Genre[25], Desc[100], Publisher[50], PriceStr[10];
+        float Rating, Price;
+        if (sscanf(buffer, "Game: %49[^,], %24[^,], %99[^,], %49[^,], %f, %9s",
+            Title, Genre, Desc, Publisher, &Rating, PriceStr) == 6) {
+            if (strcmp(PriceStr, "Free") == 0) {
+                Price = 0.0;
+            } else {
+                Price = atof(PriceStr); // Convert string to float
             }
+            NodeGames *newNode = createNode(Title, Genre, Desc, Publisher, Rating, Price);
+            if (newNode == NULL) continue; // Handle memory allocation failure
+            *nodePtr = newNode;
+            nodePtr = &newNode->next;
         } else {
-            fprintf(stderr, "Failed to parse game data: %s\n", buffer);
-            free(newGame);
+            printf("Failed to parse line: %s\n", buffer);
         }
     }
-
     fclose(file);
+}
+
+void DataShop(NodeGames *Shop) {
+    if (Shop == NULL || Shop == NULL) {
+        printf("Error: Player data is not available.\n");
+        return;
+    }
+    if (Shop == NULL) {
+        printf("No games in your library");
+        return;
+    }
+
+    int i = 0;
+    NodeGames *current = Shop;
+
+    printf("Games List : \n");
+    printf("_________________________________________________________________________________________________\n");
+    printf("|No\tTitle\t\tPublisher\tGenre\tPrice\tRating\n");
+    printf("|_______________________________________________________________________________________________|\n");
+
+    while (current != NULL) {
+        printf("|%-2d\t%-20s\t%-15s\t%-10s\t%-5.2f\t%-5.2f|\n", i+1, current->title, current->publisher, current->genre, current->price, current->rating);
+        i++;
+        current = current->next;
+    }
+    printf("|_______________________________________________________________________________________________|\n");
+    getch();
+    printf("Press Enter to continue...\n");
+    fflush(stdout); // Ensure all output is printed before blocking for input
+    while(getchar() != '\n'); // Wait for Enter key to be pressed
 }
 
 void lihatData(user **player[], int loginKey) {
@@ -199,7 +240,7 @@ void lihatData(user **player[], int loginKey) {
     while(getchar() != '\n'); // Wait for Enter key to be pressed
 }
 
-void libraryMenu(user **player[], int loginKey){
+void libraryMenu(user **player[], int loginKey, NodeGames *Shop){
     int trigger = 0;
     int i = 0, pilihan, O = 0;
 
@@ -218,8 +259,7 @@ void libraryMenu(user **player[], int loginKey){
     getch();
     
     do {
-        int i = 0, pilihan, O = 0;
-        NodeGames *currentGame = (*player)[loginKey]->Games;
+        int pilihan;
         system("cls");
         printf(" +-------------------------------------------------+\n");
         printf(" |          SELAMAT DATANG DI GAME LIBRARY         |\n");
@@ -249,11 +289,15 @@ void libraryMenu(user **player[], int loginKey){
             break;
             
             case 2 : 
-            pilihSort(player[loginKey], loginKey);
+            pilihSort(player, i, loginKey);
             break;
 
             case 3 : 
-            pilihSearch(player[loginKey], loginKey);
+            pilihSearch(player, i, loginKey);
+            break;
+
+            case 4 : 
+            menuShopGames(player, Shop, i);
             break;
 
             case 6 : 
@@ -288,7 +332,7 @@ void string_to_lower(char *str) {
     }
 }
 
-void pilihSort(user **player, int jumlahData){
+void pilihSort(user **player[], int jumlahData, int loginKey){
     system("cls");
     int pilihan, pilihanSort;
     printf(" +-------------------------------------------------+\n");
@@ -319,7 +363,7 @@ void pilihSort(user **player, int jumlahData){
             case 4 : 
 
             case 5 : 
-            MergeSort(&(*player)->Games, pilihan, pilihanSort);
+            MergeSort(&(*player)[loginKey]->Games, pilihan, pilihanSort);
             break;
 
             default :
@@ -330,7 +374,7 @@ void pilihSort(user **player, int jumlahData){
         }
 }
 
-void pilihSearch(user **player, int jumlahData){
+void pilihSearch(user **player[], int jumlahData, int loginKey){
     system("cls");
     int pilihan;
     char Searching[100];
@@ -353,21 +397,21 @@ void pilihSearch(user **player, int jumlahData){
             system("cls");
             printf("Masukkan Title yang ingin di search : ");
             scanf(" %[^\n]", Searching);
-            searchingString(player, Searching, pilihan);
+            searchingString(player, Searching, pilihan, loginKey);
             break;
 
             case 2 : 
             system("cls");
             printf("Masukkan Genre yang ingin di search : ");
             scanf(" %[^\n]", Searching);
-            searchingString(player, Searching, pilihan);
+            searchingString(player, Searching, pilihan, loginKey);
             break;
 
             case 3 : 
             system("cls");
             printf("Masukkan Publisher yang ingin di search : ");
             scanf(" %[^\n]", Searching);
-            searchingString(player, Searching, pilihan);
+            searchingString(player, Searching, pilihan, loginKey);
             break;
 
             default :
@@ -548,9 +592,9 @@ void MergeSort(GamesPtr* headRef, int pilihan, int PilihanSort) {
     *headRef = SortedMerge(a, b, pilihan, PilihanSort); 
 }
 
-void searchingString(user **player, char* namaDicari, int i){
+void searchingString(user **player[], char* namaDicari, int i, int loginKey){
     int j = 0;
-    GamesPtr current = (*player)->Games;
+    GamesPtr current = (*player)[loginKey]->Games;
     int found = 0;
     string_to_lower(namaDicari);
 
@@ -651,7 +695,7 @@ void createUser(user **playerLogin) {
     *playerLogin = newUser; 
 }
 
-void loginUser(user **player, int numPlayer) {
+void loginUser(user **player, int numPlayer, NodeGames *Shop) {
     int trigger = 0, found = 0, loginKey = -1;
     char bufferUsername[100], bufferPassword[100];
 
@@ -674,7 +718,7 @@ void loginUser(user **player, int numPlayer) {
         }
 
         if (found) {
-            libraryMenu(&player, loginKey);
+            libraryMenu(&player, loginKey, Shop);
             break; 
         } else {
             printf("We couldn't find your username / The password is wrong. You have %d attempts left.\n", 2 - trigger);
@@ -686,7 +730,8 @@ void loginUser(user **player, int numPlayer) {
         }
     }
 }
-void loginPageMenu(user **player) {
+
+void loginPageMenu(user **player, NodeGames *Shop) {
     getch();
     int pilihan, trigger = 0;
     system("cls");
@@ -718,7 +763,7 @@ void loginPageMenu(user **player) {
     printf("Pilih Opsi: "); scanf("%d", &pilihan);
 
     switch(pilihan) {
-        case 1 : loginUser(player, 100);
+        case 1 : loginUser(player, 100, Shop);
         break;
 
         case 2 : createUser(player);
@@ -771,7 +816,7 @@ void userSettings(user *player) {
 }
 
 
-void menuShopGames(user **player) {
+void menuShopGames(user **player[], NodeGames *Shop, int Data) {
     
     int pilihan, trigger = 0;
 
@@ -788,9 +833,11 @@ void menuShopGames(user **player) {
     printf(" +-----+-- -----------------------------------------+\n");
     printf(" |  3  | Exit Program                              |\n");
     printf(" +-----+-------------------------------------------+\n");
+    printf("Pilih Opsi: "); scanf("%d", &pilihan);
 
     switch(pilihan) {
         case 1 :
+            DataShop(Shop);
             break;
         case 2 :
             break;
@@ -805,9 +852,11 @@ void menuShopGames(user **player) {
 
 int main() {
     user **players;
+    NodeGames *Shop;
     int numPlayers = 100;  
     int pilihan, trigger = 0;
 
+    Shop = (NodeGames *)malloc(sizeof(NodeGames *));
     players = (user **)malloc(numPlayers * sizeof(user *));
     if (players == NULL) {
         fprintf(stderr, "Failed to allocate memory for players.\n");
@@ -816,7 +865,8 @@ int main() {
 
     readPlayersFromFile(players, &numPlayers);
     readGamesFromFileForUsers(players, numPlayers);
+    readShopFromFileForUsers(&Shop);
 
-    loginPageMenu(players);
+    loginPageMenu(players, Shop);
     return 0;
 }
