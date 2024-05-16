@@ -701,7 +701,7 @@ void createUser(user **playerLogin, int *numPlayersLogin) {
     
     newUser->Games = NULL;
     *playerLogin = newUser;
-    *numPlayersLogin += 1; 
+    *numPlayersLogin = *numPlayersLogin + 1; 
 }
 
 void appendUser(const char username[], const char password[]) {
@@ -785,6 +785,8 @@ void loginPageMenu(user **player, NodeGames *Shop, int numPlayers) {
     system("cls");
 
     do {
+        printf("Jumlah Player: %d", numPlayersLogin);
+        getch();
         system("cls");
         printf(" +-------------------------------------------------+\n");
         printf(" |          SELAMAT DATANG DI GAME LIBRARY         |\n");
