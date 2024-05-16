@@ -194,16 +194,16 @@ void DataShop(NodeGames *Shop) {
     NodeGames *current = Shop;
 
     printf("Games List : \n");
-    printf("_________________________________________________________________________________________________\n");
-    printf("|No\tTitle\t\tPublisher\tGenre\tPrice\tRating\n");
-    printf("|_______________________________________________________________________________________________|\n");
+    printf("_________________________________________________________________________________________________________________________________\n");
+    printf("|No   |Title Game                                    |Publisher                           |Genre          |Price     |Rating    |\n");
+    printf("|_____|______________________________________________|____________________________________|_______________|__________|__________|\n");
 
     while (current != NULL) {
-        printf("|%-2d\t%-20s\t%-15s\t%-10s\t%-5.2f\t%-5.2f|\n", i+1, current->title, current->publisher, current->genre, current->price, current->rating);
+        printf("|%-4d |%-45s |%-30s |%-20s|%-10.2f|%-10.2f|\n", i+1, current->title, current->publisher, current->genre, current->price, current->rating);
         i++;
         current = current->next;
     }
-    printf("|_______________________________________________________________________________________________|\n");
+    printf("|_____|______________________________________________|____________________________________|_______________|__________|__________|\n");
     getch();
     printf("Press Enter to continue...\n");
     fflush(stdout); // Ensure all output is printed before blocking for input
@@ -224,16 +224,16 @@ void lihatData(user **player[], int loginKey) {
     NodeGames *current = (*player)[loginKey]->Games;
 
     printf("Data for %s:\n", (*player)[loginKey]->gamerTag);
-    printf("_________________________________________________________________________________________________\n");
-    printf("|No\tTitle\t\tPublisher\tGenre\tPrice\tRating\n");
-    printf("|_______________________________________________________________________________________________|\n");
+    printf("_______________________________________________________________________________________________\n");
+    printf("|No   |Title Game                 |Publisher            |Genre          |Price     |Rating    |\n");
+    printf("|_____|___________________________|_____________________|_______________|__________|__________|\n");
 
     while (current != NULL) {
-        printf("|%-2d\t%-20s\t%-15s\t%-10s\t%-5.2f\t%-5.2f|\n", i+1, current->title, current->publisher, current->genre, current->price, current->rating);
+        printf("|%-4d |%-26s |%-20s |%-15s|%-10.2f|%-10.2f|\n", i+1, current->title, current->publisher, current->genre, current->price, current->rating);
         i++;
         current = current->next;
     }
-    printf("|_______________________________________________________________________________________________|\n");
+    printf("|_____|___________________________|_____________________|_______________|__________|__________|\n");
     getch();
     printf("Press Enter to continue...\n");
     fflush(stdout); // Ensure all output is printed before blocking for input
@@ -245,17 +245,18 @@ void libraryMenu(user **player[], int loginKey, NodeGames *Shop){
     int i = 0, pilihan, O = 0;
 
     printf("Data:\n");
-    printf("_________________________________________________________________________________________________\n");
-    printf("|No\tTitle Game\t\tPublisher\tGenre\tHarga\tRating                               \n");
-    printf("|_______________________________________________________________________________________________|\n");
+    printf("_______________________________________________________________________________________________\n");
+    printf("|No   |Title Game                 |Publisher            |Genre          |Price     |Rating    |\n");
+    printf("|_____|___________________________|_____________________|_______________|__________|__________|\n");
 
     NodeGames *currentGame = (*player)[loginKey]->Games;
     while (currentGame != NULL) {
-        printf("|%-2d\t%-20s\t%11s\t%9s\t%9.2f\t%9.2f\n", i+1, currentGame->title, currentGame->publisher, currentGame->genre, currentGame->price, currentGame->rating);
+        printf("|%-4d |%-26s |%-20s |%-15s|%-10.2f|%-10.2f|\n",
+            i+1, currentGame->title, currentGame->publisher, currentGame->genre, currentGame->price, currentGame->rating);
         currentGame = currentGame->next;
         i++;
     }
-    printf("|_______________________________________________________________________________________________|\n");
+    printf("|_____|___________________________|_____________________|_______________|__________|__________|\n");
     getch();
     
     do {
@@ -599,9 +600,9 @@ void searchingString(user **player[], char* namaDicari, int i, int loginKey){
     string_to_lower(namaDicari);
 
     printf("Data:\n");
-    printf("_________________________________________________________________________________________________\n");
-    printf("|No\tTitle Game\t\tPublisher\tGenre\tHarga\tRating                               \n");
-    printf("|_______________________________________________________________________________________________|\n");
+    printf("_______________________________________________________________________________________________\n");
+    printf("|No   |Title Game                 |Publisher            |Genre          |Price     |Rating    |\n");
+    printf("|_____|___________________________|_____________________|_______________|__________|__________|\n");
 
     // Searching data yang sesuai
     while (current != NULL) {
@@ -617,13 +618,13 @@ void searchingString(user **player[], char* namaDicari, int i, int loginKey){
         }
         string_to_lower(currentNameLower);
         if (strstr(currentNameLower, namaDicari) != NULL) {
-            printf("|%-2d\t%-20s\t%11s\t%9s\t%9.2f\t%11.2f\n", j+1, current->title, current->publisher, current->genre, current->price, current->rating);
+            printf("|%-4d |%-26s |%-20s |%-15s|%-10.2f|%-10.2f|\n", j+1, current->title, current->publisher, current->genre, current->price, current->rating);
             found = 1;
         }
         current = current->next;
     }
 
-    printf("|_______________________________________________________________________________________________|\n");
+    printf("|_____|___________________________|_____________________|_______________|__________|__________|\n");
 
     // Error handling jika tidak ada data yang sesuai
     if (!found) {
