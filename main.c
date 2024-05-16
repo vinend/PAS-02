@@ -63,13 +63,14 @@ void readPlayersFromFile(user **players, int *numPlayers);
 void readGamesFromFileForUsers(user **players, int numPlayers);
 void readShopFromFileForUsers(NodeGames **Shop);
 void lihatData(user **player[], int loginKey);
-void userSettings(user *player);
+void userSettings(user **player[], int loginKey);
 void flushInput();
 void randomPassGen(char *pass, int length);
 void createUser(user **playerLogin, int *numPlayerLogin);
 void loginUser(user **player, int numPlayer, NodeGames *Shop);
 void loginPageMenu(user **player, NodeGames *Shop, int numPlayers);
 void menuShopGames(user **player[], NodeGames *Shop, int Data);
+void updatePasswordInFile(const char *gamerTag, const char *newPassword);
 
 void readPlayersFromFile(user **players, int *numPlayers) {
     FILE *file = fopen("players.txt", "r");
@@ -302,7 +303,7 @@ void libraryMenu(user **player[], int loginKey, NodeGames *Shop){
             break;
 
             case 6 : 
-            userSettings((*player)[loginKey]);
+            userSettings(player, loginKey);
             break;
 
             case 7 :
@@ -822,6 +823,44 @@ void loginPageMenu(user **player, NodeGames *Shop, int numPlayers) {
     } while (trigger == 0);
 }
 
+void userSettings(user **player[], int loginKey) {
+    int trigger = 0, found = 0;
+    char bufferPassword[100], newPassword[100];
+
+    system("cls");
+    printf("||         Please Enter Your Password Again         ||\n");
+
+    while (trigger < 3 && !found) {
+        system("cls");
+        printf("Enter Password: ");
+        scanf(" %99s", bufferPassword);
+
+        if (strcmp(bufferPassword, (*player)[loginKey]->password) == 0) {
+            printf("Login Successful!\n");
+            found = 1;
+            break;
+        } else {
+            printf("The password is wrong. You have %d attempts left.\n", 2 - trigger);
+            getch();
+            trigger++;
+        }
+
+        if (trigger == 3) {
+            printf("Maximum login attempts exceeded.\n");
+            return;
+        }
+    }
+
+    if (found) {
+        printf("Enter new password: ");
+        scanf(" %99s", newPassword);
+        strcpy((*player)[loginKey]->password, newPassword);
+        printf("Password updated successfully!\n");
+
+        updatePasswordInFile((*player)[loginKey]->gamerTag, newPassword);
+    }
+}
+
 
 void updatePasswordInFile(const char *gamerTag, const char *newPassword) {
     FILE *file = fopen("players.txt", "r+");
@@ -858,45 +897,6 @@ void updatePasswordInFile(const char *gamerTag, const char *newPassword) {
     fclose(file);
 }
 
-
-void userSettings(user *player) {
-    int trigger = 0, found = 0;
-    char bufferPassword[100], newPassword[100], bufferGamertag[100];
-
-    system("cls");
-    printf("||         Please Enter Your Password Again         ||\n");
-
-    while (trigger < 3 && !found) {
-        system("cls");
-        printf("Enter Password: ");
-        scanf(" %99s", bufferPassword);
-
-        if (strcmp(bufferPassword, player->password) == 0) {
-            printf("Login Successful!\n");
-            found = 1;
-            break;
-        } else {
-            printf("The password is wrong. You have %d attempts left.\n", 2 - trigger);
-            getch();
-            trigger++;
-        }
-
-        if (trigger == 3) {
-            printf("Maximum login attempts exceeded.\n");
-            return;
-        }
-    }
-
-    if (found) {
-        printf("Enter new password: ");
-        scanf(" %99s", newPassword);
-        strcpy(player->password, newPassword);
-        strcpy(player->gamerTag, bufferGamertag);
-        printf("Password updated successfully!\n");
-
-        updatePasswordInFile(bufferGamertag, newPassword);
-    }
-}
 
 
 void menuShopGames(user **player[], NodeGames *Shop, int Data) {
