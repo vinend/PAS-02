@@ -233,6 +233,35 @@ void DataShop(NodeGames *Shop) {
     while(getchar() != '\n'); // Wait for Enter key to be pressed
 }
 
+void AddShop(NodeGames *Shop){
+    FILE *file = fopen("games.txt", "r");
+    if (!file) {
+        perror("Failed to open the file");
+        getch();
+        return;
+    }
+
+    NodeGames* ptr = Shop;
+    while(ptr->next != NULL){
+        ptr = ptr->next;
+    }
+    ptr = ptr->next;
+
+    printf("Masukkan Judul dari Game yang ingin dimasukkan : ");
+    scanf(" %[^\n]", ptr->title);
+    printf("Masukkan Genre dari Game yang ingin dimasukkan : ");
+    scanf(" %[^\n]", ptr->genre);
+    printf("Masukkan Deskripsi dari Game yang ingin dimasukkan : ");
+    scanf(" %[^\n]", ptr->desc);
+    printf("Masukkan Publisher dari Game yang ingin dimasukkan : ");
+    scanf(" %[^\n]", ptr->publisher);
+    printf("Masukkan Rating dari Game yang ingin dimasukkan : ");
+    scanf("%d", ptr->rating);
+
+    
+
+}
+
 void lihatData(user **player[], int loginKey) {
     if (player == NULL || *player == NULL) {
         printf("Error: Player data is not available.\n");
@@ -324,6 +353,10 @@ void libraryMenu(user **player[], int loginKey, NodeGames *Shop){
 
             case 4 : 
             menuShopGames(player, Shop, i);
+            break;
+
+            case 5 :
+            AddShop(Shop);
             break;
 
             case 6 : 
@@ -889,7 +922,6 @@ void userSettings(user **player[], int loginKey) {
         updatePasswordInFile((*player)[loginKey]->gamerTag, newPassword);
     }
 }
-
 
 void updatePasswordInFile(const char *gamerTag, const char *newPassword) {
     FILE *file = fopen("players.txt", "r+");
