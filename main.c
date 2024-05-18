@@ -81,20 +81,45 @@ void searchingStringShop(NodeGames *Shop, char namaDicari[], int i);
 
 
 void generateGameKeys(NodeGames *Shop) {
-    char key[21];
     NodeGames *current = Shop;
+    int count = 0;
 
+    // First, count the number of nodes in the linked list
     while (current != NULL) {
-        generateGameKey(key, 20);
-        strcpy(current->gameKey, key);
+        count++;
         current = current->next;
     }
+
+    // Create an array of pointers to NodeGames
+    NodeGames **gameArray = (NodeGames **)malloc(count * sizeof(NodeGames *));
+    if (!gameArray) {
+        fprintf(stderr, "Memory allocation failed for gameArray\n");
+        return;
+    }
+
+    // Fill the array with pointers to the nodes
+    current = Shop;
+    for (int i = 0; i < count; i++) {
+        gameArray[i] = current;
+        current = current->next;
+    }
+
+    // Generate keys in parallel
+    #pragma omp parallel for
+    for (int i = 0; i < count; i++) {
+        char key[21];
+        generateGameKey(key, 20);
+        strcpy(gameArray[i]->gameKey, key);
+    }
+
+    // Free the allocated array
+    free(gameArray);
 }
 
 void generateGameKey(char *key, int length) {
     char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    srand(time(NULL));
 
+    #pragma omp parallel for
     for (int i = 0; i < length; i++) {
         int index = rand() % (sizeof(charset) - 1);
         key[i] = charset[index];
@@ -102,6 +127,22 @@ void generateGameKey(char *key, int length) {
     key[length] = '\0';
 }
 
+
+void appendGameKeysToFile(NodeGames *Shop) {
+    FILE *file = fopen("gameKeys.txt", "w");
+    if (!file) {
+        perror("Failed to open gameKeys.txt");
+        return;
+    }
+
+    NodeGames *current = Shop;
+    while (current != NULL) {
+        fprintf(file, "Game: %s, Key: %s\n", current->title, current->gameKey);
+        current = current->next;
+    }
+
+    fclose(file);
+}
 
 
 void readPlayersFromFile(user **players, int *numPlayers) {
@@ -432,6 +473,36 @@ void searchingStringShop(NodeGames *Shop, char namaDicari[], int i) {
     getch();
     system("cls");
 }
+
+void redeemGame(user **player[], NodeGames *Shop, int loginKey) {
+    int j = 0;
+    int found = 0;
+    char gameKey[50];
+
+    NodeGames *current = Shop;
+
+    printf("Enter the Game Key to Redeem: "); scanf("%s", &gameKey);
+        while (current != NULL) {
+            if (strcmp(gameKey, current->gameKey) == 0) {
+                    found = 1;
+                    addGameToLibrary(player, current, loginKey);
+                    appendGameToFile((*player)[loginKey], current);
+                    printf("%s added to your library!\n", current->title);
+                    break;
+            }
+            current = current->next;
+        }
+
+    if (!found) {
+        system("cls");
+        printf("Redeem Key Not Valid!\n");
+        getch();
+    }
+
+    getch();
+    system("cls");
+}
+
 
 
 void lihatData(user **player[], int loginKey) {
@@ -1200,7 +1271,9 @@ void menuShopGames(user **player[], NodeGames *Shop, int loginkey) {
         printf(" +-----+-------------------------------------------+\n");
         printf(" |  3  | Search Games                              |\n");
         printf(" +-----+-------------------------------------------+\n");
-        printf(" |  4  | Return to Menu                            |\n");
+        printf(" |  4  | Redeem Game                               |\n");
+        printf(" +-----+-------------------------------------------+\n");
+        printf(" |  5  | Return to Menu                            |\n");
         printf(" +-----+-------------------------------------------+\n");
         printf("Pilih Opsi: "); scanf("%d", &pilihan);
 
@@ -1214,7 +1287,11 @@ void menuShopGames(user **player[], NodeGames *Shop, int loginkey) {
             case 3:
                 searchingGame(Shop);
                 break;
-            case 4:
+
+            case 4 :
+                redeemGame(player, Shop, loginkey);
+
+            case 5:
                 trigger = 1;
                 break;
             default:
@@ -1231,6 +1308,8 @@ int main() {
     int numPlayers = 100;  
     int pilihan, trigger = 0;
 
+    srand(time(NULL));
+
     Shop = (NodeGames *)malloc(sizeof(NodeGames *));
     players = (user **)malloc(numPlayers * sizeof(user *));
     if (players == NULL) {
@@ -1243,6 +1322,7 @@ int main() {
     readGamesFromFileForUsers(players, numPlayers);
     readShopFromFileForUsers(&Shop);
     generateGameKeys(Shop);
+    appendGameKeysToFile(Shop);
     
     getch();
 

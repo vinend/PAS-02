@@ -9,3 +9,6 @@ GamerTag: ferroDactyl; Game: Terraria, Adventure, Dig fight explore build! Nothi
 GamerTag: BantalEmak; Game: Slay the Spire, Card, Experience the excitement of mystery and exploration in this card game, MegaCrit, 4.0, 24.00
 GamerTag: BantalEmak; Game: Cyberpunk 2077, RPG, In Night City a megalopolis obsessed with power glamour and body modification, CD Projekt Red, 3.0, 59.00
 GamerTag: BantalEmak; Game: Jaipur, Board, Experience the excitement of mystery and exploration in this board game, Asmodee Digital, 4.0, 4.00
+GamerTag: BantalEmak; Game: The Witcher 3, RPG, Geralt of Rivia a monster hunter is on a journey to find his adopted daughter, CD Projekt Red, 4.0, 29.00
+GamerTag: NatanoJ; Game: The Witcher 3, RPG, Geralt of Rivia a monster hunter is on a journey to find his adopted daughter, CD Projekt Red, 4.0, 29.00
+GamerTag: NatanoJ; Game: The Elder Scrolls V: Skyrim, RPG, Embark on a legendary journey in the world of Skyrim, Bethesda, 4.0, 39.00
