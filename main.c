@@ -90,6 +90,7 @@ void readPlayersFromFile(user **players, int *numPlayers) {
     FILE *file = fopen("players.txt", "r");
     if (!file) {
         printf("Failed to open the file.\n");
+        getch();
         return;
     }
 
@@ -117,6 +118,7 @@ void readGamesFromFileForUsers(user **players, int numPlayers) {
     FILE *file = fopen("games.txt", "r");
     if (!file) {
         perror("Failed to open the file");
+        getch();
         return;
     }
 
@@ -142,6 +144,7 @@ void readGamesFromFileForUsers(user **players, int numPlayers) {
             }
         } else {
             fprintf(stderr, "Failed to parse game data: %s\n", buffer);
+            getch();
             free(newGame);
         }
     }
@@ -153,6 +156,7 @@ NodeGames* createNode(char *Title, char *Genre, char *Desc, char *Publisher, int
     NodeGames* newNode = (NodeGames*)malloc(sizeof(NodeGames));
     if (newNode == NULL) {
         fprintf(stderr, "Error allocating memory\\n");
+        getch();
         return NULL;
     }
     strcpy(newNode->title, Title);
@@ -168,6 +172,7 @@ void readShopFromFileForUsers(NodeGames **Shop) {
     FILE *file = fopen("Shop.txt", "r");
     if (!file) {
         fprintf(stderr, "Failed to open file\n");
+        getch();
         return;
     }
 
@@ -190,6 +195,7 @@ void readShopFromFileForUsers(NodeGames **Shop) {
             nodePtr = &newNode->next;
         } else {
             printf("Failed to parse line: %s\n", buffer);
+            getch();
         }
     }
     fclose(file);
@@ -198,10 +204,12 @@ void readShopFromFileForUsers(NodeGames **Shop) {
 void DataShop(NodeGames *Shop) {
     if (Shop == NULL || Shop == NULL) {
         printf("Error: Player data is not available.\n");
+        getch();
         return;
     }
     if (Shop == NULL) {
         printf("No games in your library");
+        getch();
         return;
     }
 
@@ -228,10 +236,12 @@ void DataShop(NodeGames *Shop) {
 void lihatData(user **player[], int loginKey) {
     if (player == NULL || *player == NULL) {
         printf("Error: Player data is not available.\n");
+        getch();
         return;
     }
     if ((*player)[loginKey]->Games == NULL) {
         printf("No games in your library for %s.\n", (*player)[loginKey]->gamerTag);
+        getch();
         return;
     }
 
@@ -579,6 +589,7 @@ GamesPtr SortedMerge(GamesPtr a, GamesPtr b, int pilihan, int PilihanSort) {
     }
     else {
         printf("Pilihan diluar yang disediakan, silahkan masukkan ulang !");
+        getch();
     }
     return result;
 }
@@ -645,6 +656,7 @@ void searchingString(user **player[], char* namaDicari, int i, int loginKey){
     if (!found) {
         system("cls");
         printf("Tidak ada data yang sesuai.\n");
+        getch();
     }
 
     getch(); system("cls");
@@ -673,6 +685,7 @@ void createUser(user **playerLogin, int *numPlayersLogin) {
     user *newUser = (user*)malloc(sizeof(user));
     if (newUser == NULL) {
         printf("Memory allocation failed.\n");
+        getch();
         return;
     }
 
@@ -687,6 +700,7 @@ void createUser(user **playerLogin, int *numPlayersLogin) {
     char buffer[10];
     int trigger = 0;
     do {
+        system("cls");
         printf("Suggest Password? (Yes/No): ");
         scanf("%9s", buffer);
         flushInput();
@@ -706,6 +720,7 @@ void createUser(user **playerLogin, int *numPlayersLogin) {
             trigger = 1;
         } else {
             printf("Invalid input. Please type 'Yes' or 'No'.\n");
+            getch();
         }
     } while (trigger == 0);
 
@@ -725,16 +740,15 @@ void appendUser(const char username[], const char password[]) {
     FILE *file = fopen("players.txt", "a");
     if (file == NULL) {
         perror("Failed to open file for appending");
+        getch();
         return;
     }
 
-    fprintf(file, "GamerTag: %s\n", username);
-    fprintf(file, "Password: %s\n", password);
+    fprintf(file, "\nGamerTag: %s\n", username);
+    fprintf(file, "Password: %s", password);
 
     fclose(file);
 }
-
-
 
 void loginUser(user **player, int numPlayer, NodeGames *Shop) {
     int trigger = 0, found = 0, loginKey = -1;
@@ -758,7 +772,6 @@ void loginUser(user **player, int numPlayer, NodeGames *Shop) {
                 break;
             }
         }
-
 
         if (found) {
             libraryMenu(&player, loginKey, Shop);
@@ -862,6 +875,7 @@ void userSettings(user **player[], int loginKey) {
 
         if (trigger == 3) {
             printf("Maximum login attempts exceeded.\n");
+            getch();
             return;
         }
     }
@@ -891,22 +905,36 @@ void updatePasswordInFile(const char *gamerTag, const char *newPassword) {
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
         if (strstr(buffer, "GamerTag:") != NULL && strstr(buffer, gamerTag) != NULL) {
             found = 1;
-            offset = ftell(file);
+            fgets(buffer, sizeof(buffer), file);  // Read the current password line
+            offset = ftell(file) - strlen(buffer);  // Calculate the start position of the current password line
             break;
         }
     }
 
     if (found) {
-        // Move the file pointer to the position after the GamerTag line
-        fseek(file, offset, SEEK_SET);
-        // Skip the current password line
-        fgets(buffer, sizeof(buffer), file);
-        // Move the file pointer back to the beginning of the password line
-        fseek(file, -strlen(buffer), SEEK_CUR);
-        // Write the new password
-        fprintf(file, "Password: %s\n", newPassword);
+        fseek(file, offset, SEEK_SET);  // Set file pointer to the beginning of the password line
+
+        int currentPassLength = strlen(strchr(buffer, ':') + 2) - 1;  // Calculate the length of the existing password (+2 for skipping ": ")
+        int newPassLength = strlen(newPassword);
+
+        // Construct the new password line with the correct format
+        char newPassLine[256];
+        int written = snprintf(newPassLine, sizeof(newPassLine), "Password: %s\n", newPassword);
+
+        if (written > currentPassLength) {  // If the new password is longer, truncate it
+            newPassLine[currentPassLength + 10] = '\n';  // +10 to account for "Password: "
+            newPassLine[currentPassLength + 11] = '\0';
+        } else if (written < currentPassLength) {  // If the new password is shorter, pad with spaces
+            memset(newPassLine + written - 1, ' ', currentPassLength - written + 1);  // Fill space with spaces
+            newPassLine[currentPassLength + 10] = '\n';
+            newPassLine[currentPassLength + 11] = '\0';
+        }
+
+        // Write the new password line, padded correctly to fit the original space
+        fputs(newPassLine, file);
     } else {
         printf("GamerTag not found.\n");
+        getch();
     }
 
     fclose(file);
@@ -958,6 +986,7 @@ int main() {
     players = (user **)malloc(numPlayers * sizeof(user *));
     if (players == NULL) {
         fprintf(stderr, "Failed to allocate memory for players.\n");
+        getch();
         return EXIT_FAILURE;
     }
 
