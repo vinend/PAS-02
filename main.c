@@ -21,7 +21,7 @@ struct videoGames{
     char publisher[100];
     float rating;
     float price;
-    int gameKey;
+    char gameKey[21];
     struct videoGames* next;
 
 };
@@ -1242,7 +1242,8 @@ int main() {
     readPlayersFromFile(players, &numPlayers);
     readGamesFromFileForUsers(players, numPlayers);
     readShopFromFileForUsers(&Shop);
-
+    generateGameKeys(Shop);
+    
     getch();
 
     loginPageMenu(players, Shop, numPlayers);
