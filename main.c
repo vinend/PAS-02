@@ -75,7 +75,10 @@ void updatePasswordInFile(const char *gamerTag, const char *newPassword);
 void generateGameKey(char *key, int length);
 void addGameToLibrary(user **player[], NodeGames *selectedGame, int loginKey);
 void appendGameToFile(user *player, NodeGames *selectedGame);
-void sortShop(NodeGames **Shop);
+void sortShop(NodeGames **Shop);\
+void searchingGame(NodeGames *shop);
+void searchingStringShop(NodeGames *Shop, char namaDicari[], int i);
+
 
 void generateGameKeys(NodeGames *Shop) {
     char key[21];
@@ -340,6 +343,96 @@ void AddShop(NodeGames *Shop){
     
 
 }
+
+void searchingGame(NodeGames *shop) {
+    system("cls");
+    int pilihan;
+    char Searching[100];
+
+    printf(" +-------------------------------------------------+\n");
+    printf(" |          SELAMAT DATANG DI GAME LIBRARY         |\n");
+    printf(" +-------------------------------------------------+\n");
+    printf(" | No. |              OPSI                         |\n");
+    printf(" +-----+-------------------------------------------+\n");
+    printf(" |  1  | Searching Title                           |\n");
+    printf(" +-----+-------------------------------------------+\n");
+    printf(" |  2  | Searching Genre                           |\n");
+    printf(" +-----+-------------------------------------------+\n");
+    printf(" |  3  | Searching Publisher                       |\n");
+    printf(" +-----+-------------------------------------------+\n");
+    printf("Pilih Opsi: "); scanf("%d", &pilihan);
+
+    switch(pilihan) {
+        case 1: 
+            system("cls");
+            printf("Masukkan Title yang ingin di search: ");
+            scanf(" %[^\n]", Searching);
+            searchingStringShop(shop, Searching, pilihan);
+            break;
+        case 2: 
+            system("cls");
+            printf("Masukkan Genre yang ingin di search: ");
+            scanf(" %[^\n]", Searching);
+            searchingStringShop(shop, Searching, pilihan);
+            break;
+        case 3: 
+            system("cls");
+            printf("Masukkan Publisher yang ingin di search: ");
+            scanf(" %[^\n]", Searching);
+            searchingStringShop(shop, Searching, pilihan);
+            break;
+        default:
+            system("cls"); 
+            printf("Input Tidak Benar"); 
+            getch();
+            break;
+    }
+}
+
+
+void searchingStringShop(NodeGames *Shop, char namaDicari[], int i) {
+    int j = 0;
+    int found = 0;
+    string_to_lower(namaDicari);
+
+    NodeGames *current = Shop;
+
+    printf("Data:\n");
+    printf("_______________________________________________________________________________________________\n");
+    printf("|No   |Title Game                 |Publisher            |Genre          |Price     |Rating    |\n");
+    printf("|_____|___________________________|_____________________|_______________|__________|__________|\n");
+
+    while (current != NULL) {
+        char currentNameLower[100];
+        if (i == 1) {
+            strcpy(currentNameLower, current->title);
+        } else if (i == 2) {
+            strcpy(currentNameLower, current->genre);
+        } else if (i == 3) {
+            strcpy(currentNameLower, current->publisher);
+        }
+        string_to_lower(currentNameLower);
+
+        if (strstr(currentNameLower, namaDicari) != NULL) {
+            printf("|%-4d |%-26s |%-20s |%-15s|%-10.2f|%-10.2f|\n", j+1, current->title, current->publisher, current->genre, current->price, current->rating);
+            found = 1;
+        }
+        current = current->next;
+        j++;
+    }
+
+    printf("|_____|___________________________|_____________________|_______________|__________|__________|\n");
+
+    if (!found) {
+        system("cls");
+        printf("Tidak ada data yang sesuai.\n");
+        getch();
+    }
+
+    getch();
+    system("cls");
+}
+
 
 void lihatData(user **player[], int loginKey) {
     if (player == NULL || *player == NULL) {
@@ -1119,7 +1212,7 @@ void menuShopGames(user **player[], NodeGames *Shop, int loginkey) {
                 sortShop(&Shop);
                 break;
             case 3:
-                // Add searching functionality if needed
+                searchingGame(Shop);
                 break;
             case 4:
                 trigger = 1;
