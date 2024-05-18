@@ -73,6 +73,20 @@ void loginPageMenu(user **player, NodeGames *Shop, int numPlayers);
 void menuShopGames(user **player[], NodeGames *Shop, int Data);
 void updatePasswordInFile(const char *gamerTag, const char *newPassword);
 void generateGameKey(char *key, int length);
+void addGameToLibrary(user **player[], NodeGames *selectedGame, int loginKey);
+void appendGameToFile(user *player, NodeGames *selectedGame);
+void sortShop(NodeGames **Shop);
+
+void generateGameKeys(NodeGames *Shop) {
+    char key[21];
+    NodeGames *current = Shop;
+
+    while (current != NULL) {
+        generateGameKey(key, 20);
+        strcpy(current->gameKey, key);
+        current = current->next;
+    }
+}
 
 void generateGameKey(char *key, int length) {
     char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -84,6 +98,7 @@ void generateGameKey(char *key, int length) {
     }
     key[length] = '\0';
 }
+
 
 
 void readPlayersFromFile(user **players, int *numPlayers) {
@@ -201,14 +216,12 @@ void readShopFromFileForUsers(NodeGames **Shop) {
     fclose(file);
 }
 
-void DataShop(NodeGames *Shop) {
-    if (Shop == NULL || Shop == NULL) {
-        printf("Error: Player data is not available.\n");
-        getch();
-        return;
-    }
+void DataShop(user **player[], NodeGames *Shop, int loginKey) {
+    int pilihan, trigger = 0;
+    char status[40];
+
     if (Shop == NULL) {
-        printf("No games in your library");
+        printf("Error: Shop data is not available.\n");
         getch();
         return;
     }
@@ -216,22 +229,88 @@ void DataShop(NodeGames *Shop) {
     int i = 0;
     NodeGames *current = Shop;
 
-    printf("Games List : \n");
-    printf("_________________________________________________________________________________________________________________________________\n");
-    printf("|No   |Title Game                                    |Publisher                           |Genre          |Price     |Rating    |\n");
-    printf("|_____|______________________________________________|____________________________________|_______________|__________|__________|\n");
+    do {
+        system("cls");
+        printf("Games List:\n");
+        printf("____________________________________________________________________________________\n");
+        printf("|No   |Title                                     |Publisher           |Genre      |Price   |Rating |\n");
+        printf("|_____|_________________________________________|____________________|___________|________|_______|\n");
 
-    while (current != NULL) {
-        printf("|%-4d |%-45s |%-30s |%-20s|%-10.2f|%-10.2f|\n", i+1, current->title, current->publisher, current->genre, current->price, current->rating);
-        i++;
-        current = current->next;
-    }
-    printf("|_____|______________________________________________|____________________________________|_______________|__________|__________|\n");
-    getch();
-    printf("Press Enter to continue...\n");
-    fflush(stdout); // Ensure all output is printed before blocking for input
-    while(getchar() != '\n'); // Wait for Enter key to be pressed
+        while (current != NULL) {
+            printf("|%-4d |%-40s |%-20s |%-10s |%-7.2f |%-6.2f |\n", i+1, current->title, current->publisher, current->genre, current->price, current->rating);
+            i++;
+            current = current->next;
+        }
+        printf("|_____|_________________________________________|____________________|___________|________|_______|\n");
+
+        printf("Buy a game? Yes / No: "); scanf("%s", &status);
+
+        if(strcmp(status, "Yes") == 0) {
+            printf("Select a game to add to your library (enter the number): ");
+            scanf("%d", &pilihan);
+
+            if (pilihan < 1 || pilihan > i) {
+            printf("Invalid selection. Please try again.\n");
+            getch();
+            return;
+            }
+
+            current = Shop;
+            for (int j = 1; j < pilihan; j++) {
+                current = current->next;
+            }
+
+            addGameToLibrary(player, current, loginKey);
+            appendGameToFile((*player)[loginKey], current);
+
+            printf("Game added to your library!\n");
+            getch();
+        }
+
+        else if(strcmp(status, "No") == 0) {
+            system("cls");
+            printf("Thank you for browsing!");
+            getch();
+            trigger == 1;
+        }
+
+        else {
+            printf("Please input a valid answer!");
+        }
+    } while(trigger == 1);
 }
+
+void addGameToLibrary(user **player[], NodeGames *selectedGame, int loginKey) {
+    NodeGames *newGame = (NodeGames *)malloc(sizeof(NodeGames));
+    if (!newGame) {
+        fprintf(stderr, "Memory allocation failed for new game\n");
+        return;
+    }
+
+    strcpy(newGame->title, selectedGame->title);
+    strcpy(newGame->genre, selectedGame->genre);
+    strcpy(newGame->desc, selectedGame->desc);
+    strcpy(newGame->publisher, selectedGame->publisher);
+    newGame->rating = selectedGame->rating;
+    newGame->price = selectedGame->price;
+    newGame->next = (*player)[loginKey]->Games;
+    (*player)[loginKey]->Games = newGame;
+}
+
+
+void appendGameToFile(user *player, NodeGames *selectedGame) {
+    FILE *file = fopen("games.txt", "a");
+    if (!file) {
+        perror("Failed to open games.txt");
+        return;
+    }
+
+    fprintf(file, "GamerTag: %s; Game: %s, %s, %s, %s, %.1f, %.2f\n",
+            player->gamerTag, selectedGame->title, selectedGame->genre, selectedGame->desc, selectedGame->publisher, selectedGame->rating, selectedGame->price);
+
+    fclose(file);
+}
+
 
 void AddShop(NodeGames *Shop){
     FILE *file = fopen("games.txt", "r");
@@ -294,6 +373,44 @@ void lihatData(user **player[], int loginKey) {
     while(getchar() != '\n'); // Wait for Enter key to be pressed
 }
 
+void sortShop(NodeGames **Shop) {
+    system("cls");
+    int pilihan, pilihanSort;
+    printf(" +-------------------------------------------------+\n");
+    printf(" |          SELAMAT DATANG DI GAME LIBRARY         |\n");
+    printf(" +-------------------------------------------------+\n");
+    printf(" | No. |              OPSI                         |\n");
+    printf(" +-----+-------------------------------------------+\n");
+    printf(" |  1  | Sorting Rating                            |\n");
+    printf(" +-----+-------------------------------------------+\n");
+    printf(" |  2  | Sorting Harga                             |\n");
+    printf(" +-----+-------------------------------------------+\n");
+    printf(" |  3  | Sorting Nama                              |\n");
+    printf(" +-----+-------------------------------------------+\n");
+    printf(" |  4  | Sorting Genre                             |\n");
+    printf(" +-----+-------------------------------------------+\n");
+    printf(" |  5  | Sorting Publisher                         |\n");
+    printf(" +-----+-------------------------------------------+\n");
+    printf("Pilih Opsi: "); scanf("%d", &pilihan);
+    printf("Mau Naik Atau Turun (1 = Naik, 2 = Turun) : "); scanf("%d", &pilihanSort);
+
+    switch(pilihan) {
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+            MergeSort(Shop, pilihan, pilihanSort);
+            break;
+        default:
+            system("cls"); 
+            printf("Input Tidak Benar"); 
+            getch();
+            break;
+    }
+}
+
+
 void libraryMenu(user **player[], int loginKey, NodeGames *Shop){
     int trigger = 0;
     int i = 0, pilihan, O = 0;
@@ -352,7 +469,7 @@ void libraryMenu(user **player[], int loginKey, NodeGames *Shop){
             break;
 
             case 4 : 
-            menuShopGames(player, Shop, i);
+            menuShopGames(player, Shop, loginKey);
             break;
 
             case 5 :
@@ -974,38 +1091,45 @@ void updatePasswordInFile(const char *gamerTag, const char *newPassword) {
 
 
 
-void menuShopGames(user **player[], NodeGames *Shop, int Data) {
-    
+void menuShopGames(user **player[], NodeGames *Shop, int loginkey) {
     int pilihan, trigger = 0;
 
     do {
-    system("cls");
-    printf(" +-------------------------------------------------+\n");
-    printf(" |          SELAMAT DATANG DI GAME SHOP            |\n");
-    printf(" +-------------------------------------------------+\n");
-    printf(" | No. |              OPSI                         |\n");
-    printf(" +-----+-------------------------------------------+\n");
-    printf(" |  1  | Shop For Games                            |\n");
-    printf(" +-----+-------------------------------------------+\n");
-    printf(" |  2  |                                           |\n");
-    printf(" +-----+-- -----------------------------------------+\n");
-    printf(" |  3  | Exit Program                              |\n");
-    printf(" +-----+-------------------------------------------+\n");
-    printf("Pilih Opsi: "); scanf("%d", &pilihan);
+        system("cls");
+        printf(" +-------------------------------------------------+\n");
+        printf(" |          SELAMAT DATANG DI GAME SHOP            |\n");
+        printf(" +-------------------------------------------------+\n");
+        printf(" | No. |              OPSI                         |\n");
+        printf(" +-----+-------------------------------------------+\n");
+        printf(" |  1  | Shop For Games                            |\n");
+        printf(" +-----+-------------------------------------------+\n");
+        printf(" |  2  | Sort Games                                |\n");
+        printf(" +-----+-------------------------------------------+\n");
+        printf(" |  3  | Search Games                              |\n");
+        printf(" +-----+-------------------------------------------+\n");
+        printf(" |  4  | Return to Menu                            |\n");
+        printf(" +-----+-------------------------------------------+\n");
+        printf("Pilih Opsi: "); scanf("%d", &pilihan);
 
-    switch(pilihan) {
-        case 1 :
-            DataShop(Shop);
-            break;
-        case 2 :
-            break;
-        case 3 :
-            break;
-        default :
-            break;
-
-    }
-    } while(trigger == 0);
+        switch (pilihan) {
+            case 1:
+                DataShop(player, Shop, loginkey);
+                break;
+            case 2:
+                sortShop(&Shop);
+                break;
+            case 3:
+                // Add searching functionality if needed
+                break;
+            case 4:
+                trigger = 1;
+                break;
+            default:
+                printf("Invalid option. Please try again.\n");
+                getch();
+                break;
+        }
+    } while (trigger == 0);
 }
 
 int main() {

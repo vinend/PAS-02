@@ -6,3 +6,6 @@ GamerTag: lerainfrog; Game: The Last of Us Part II, Action, Joel and Ellie conti
 GamerTag: lerainfrog; Game: Uncharted 4: A Thief's End, Adventure, Nathan Drake embarks on a quest in pursuit of a historical conspiracy behind a fabled pirate treasure, Naughty Dog, 4.6, 29.99
 GamerTag: ferroDactyl; Game: Stardew Valley, Simulation, Manage your grandfather's dilapidated farm to its former glory, ConcernedApe, 4.6, 14.99
 GamerTag: ferroDactyl; Game: Terraria, Adventure, Dig fight explore build! Nothing is impossible in this action-packed adventure game, Re-Logic, 4.5, 9.99
+GamerTag: BantalEmak; Game: Slay the Spire, Card, Experience the excitement of mystery and exploration in this card game, MegaCrit, 4.0, 24.00
+GamerTag: BantalEmak; Game: Cyberpunk 2077, RPG, In Night City a megalopolis obsessed with power glamour and body modification, CD Projekt Red, 3.0, 59.00
+GamerTag: BantalEmak; Game: Jaipur, Board, Experience the excitement of mystery and exploration in this board game, Asmodee Digital, 4.0, 4.00
