@@ -14,6 +14,7 @@
 #include <time.h>
 #include <ctype.h>
 
+// Struct untuk menyimpan informasi tentang video game
 struct videoGames{
     char title[100];
     char genre[100];
@@ -22,10 +23,11 @@ struct videoGames{
     float rating;
     float price;
     char gameKey[21];
-    struct videoGames* next;
+    struct videoGames* next; // Pointer ke game berikutnya dalam daftar
 
 };
 
+// Struct untuk menyimpan informasi tentang game toko (mirip dengan videoGames)
 struct shopGames {
     char title[100];
     char genre[100];
@@ -34,20 +36,22 @@ struct shopGames {
     float rating;
     float price;
     char gameKey[21];
-    struct shopGames* next;
+    struct shopGames* next; // Pointer ke game berikutnya dalam daftar toko
 };
 
-typedef struct User user;
-typedef struct videoGames NodeGames;
-typedef NodeGames *GamesPtr;
 
+typedef struct User user; // Alias untuk struct User
+typedef struct videoGames NodeGames; // Alias untuk struct videoGames
+typedef NodeGames *GamesPtr; // Alias untuk pointer ke struct videoGames
+
+// Struct untuk menyimpan informasi tentang pengguna
 struct User{
     char gamerTag[100];
     char password[100];
     GamesPtr Games; 
 };
 
-
+// Deklarasi fungsi-fungsi yang digunakan
 void appendUser(const char username[], const char password[]);
 void libraryMenu(user **player[], int loginKey, NodeGames *Shop);
 GamesPtr swap(GamesPtr ptr1, GamesPtr ptr2);
@@ -84,68 +88,75 @@ void generateGameKeys(NodeGames *Shop) {
     NodeGames *current = Shop;
     int count = 0;
 
-    // First, count the number of nodes in the linked list
+    // Pertama, hitung jumlah node dalam linked list
     while (current != NULL) {
         count++;
         current = current->next;
     }
 
-    // Create an array of pointers to NodeGames
+    // Buat array pointer ke NodeGames
     NodeGames **gameArray = (NodeGames **)malloc(count * sizeof(NodeGames *));
     if (!gameArray) {
         fprintf(stderr, "Memory allocation failed for gameArray\n");
         return;
     }
 
-    // Fill the array with pointers to the nodes
+    // Isi array dengan pointer ke node
     current = Shop;
     for (int i = 0; i < count; i++) {
         gameArray[i] = current;
         current = current->next;
     }
 
-    // Generate keys in parallel
+     // Generate kunci secara paralel
     #pragma omp parallel for
     for (int i = 0; i < count; i++) {
         char key[21];
-        generateGameKey(key, 20);
-        strcpy(gameArray[i]->gameKey, key);
+        generateGameKey(key, 20); // Fungsi untuk menghasilkan kunci game
+        strcpy(gameArray[i]->gameKey, key); // Salin kunci ke dalam node
     }
 
-    // Free the allocated array
+    // Bebaskan memori yang dialokasikan untuk array
     free(gameArray);
 }
 
 void generateGameKey(char *key, int length) {
+    // Karakter yang akan digunakan untuk membuat kunci
     char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
+    // Generate kunci secara paralel
     #pragma omp parallel for
     for (int i = 0; i < length; i++) {
         int index = rand() % (sizeof(charset) - 1);
         key[i] = charset[index];
     }
-    key[length] = '\0';
+    key[length] = '\0'; // Akhiri string dengan null terminator
 }
 
 
 void appendGameKeysToFile(NodeGames *Shop) {
+    // Buka file untuk menulis kunci game
     FILE *file = fopen("gameKeys.txt", "w");
     if (!file) {
         perror("Failed to open gameKeys.txt");
         return;
     }
 
+    // Iterasi melalui linked list dan tulis kunci game ke file
     NodeGames *current = Shop;
     while (current != NULL) {
+        // Tulis judul game dan kunci ke file
         fprintf(file, "Game: %s, Key: %s\n", current->title, current->gameKey);
-        current = current->next;
+        current = current->next; // Pindah ke node berikutnya
     }
 
+    // Tutup file setelah selesai
     fclose(file);
 }
 
 
 void readPlayersFromFile(user **players, int *numPlayers) {
+     // Buka file players.txt untuk membaca data pengguna
     FILE *file = fopen("players.txt", "r");
     if (!file) {
         printf("Failed to open the file.\n");
@@ -153,27 +164,31 @@ void readPlayersFromFile(user **players, int *numPlayers) {
         return;
     }
 
-    char buffer[1024];
-    int index = 0;
-    user *newUser;
+    char buffer[1024]; // Buffer untuk membaca baris dari file
+    int index = 0; // Indeks untuk array pemain
+    user *newUser; // Pointer untuk menyimpan data pengguna baru
 
+    // Membaca setiap baris dari file hingga akhir file
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
         newUser = (user *)malloc(sizeof(user));
+        // Baca gamerTag dari buffer
         if (sscanf(buffer, "GamerTag: %99[^\n]", newUser->gamerTag) == 1) {
+            // Baca password dari baris berikutnya dalam file
             if (fgets(buffer, sizeof(buffer), file) && sscanf(buffer, "Password: %99[^\n]", newUser->password) == 1) {
-                newUser->Games = NULL;
-                players[index++] = newUser;
+                newUser->Games = NULL; // Inisialisasi pointer ke game sebagai NULL
+                players[index++] = newUser;  // Tambahkan pengguna baru ke array pemain
             } else {
-                free(newUser);
+                free(newUser); // Bebaskan memori jika membaca password gagal
             }
         }
     }
 
-    fclose(file);
-    *numPlayers = index;
+    fclose(file); // Tutup file setelah selesai membaca
+    *numPlayers = index; // Set jumlah pemain yang berhasil dibaca
 }
 
 void readGamesFromFileForUsers(user **players, int numPlayers) {
+     // Buka file games.txt untuk membaca data game
     FILE *file = fopen("games.txt", "r");
     if (!file) {
         perror("Failed to open the file");
@@ -181,53 +196,61 @@ void readGamesFromFileForUsers(user **players, int numPlayers) {
         return;
     }
 
-    char buffer[1024];
-    char gamerTag[100];
-    NodeGames *newGame;
+    char buffer[1024]; // Buffer untuk membaca baris dari file
+    char gamerTag[100];  // Buffer untuk menyimpan gamerTag
+    NodeGames *newGame; // Pointer untuk menyimpan data game baru
 
+    // Membaca setiap baris dari file hingga akhir file
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
-        newGame = (NodeGames *)malloc(sizeof(NodeGames));
+        newGame = (NodeGames *)malloc(sizeof(NodeGames)); // Alokasikan memori untuk game baru
         if (!newGame) {
             fprintf(stderr, "Memory allocation failed for new game\n");
             continue;
         }
 
+        // Baca gamerTag dan data game dari buffer
         if (sscanf(buffer, "GamerTag: %99[^;]; Game: %99[^,], %99[^,], %999[^,], %99[^,], %f, %f",
             gamerTag, newGame->title, newGame->genre, newGame->desc, newGame->publisher, &newGame->rating, &newGame->price) == 7) {
+            // Cari pengguna yang sesuai dengan gamerTag
             for (int i = 0; i < numPlayers; i++) {
                 if (strcmp(players[i]->gamerTag, gamerTag) == 0) {
+                     // Tambahkan game baru ke daftar game pengguna
                     newGame->next = players[i]->Games;
                     players[i]->Games = newGame;
                     break;
                 }
             }
         } else {
+            // Jika gagal mem-parsing data game, tampilkan pesan kesalahan
             fprintf(stderr, "Failed to parse game data: %s\n", buffer);
             getch();
-            free(newGame);
+            free(newGame); // Bebaskan memori jika parsing gagal
         }
     }
 
-    fclose(file);
+    fclose(file); // Tutup file setelah selesai membaca
 }
 
 NodeGames* createNode(char *Title, char *Genre, char *Desc, char *Publisher, int Rating, int Price) {
+     // Alokasikan memori untuk node baru
     NodeGames* newNode = (NodeGames*)malloc(sizeof(NodeGames));
     if (newNode == NULL) {
         fprintf(stderr, "Error allocating memory\\n");
         getch();
-        return NULL;
+        return NULL; // Kembalikan NULL jika alokasi memori gagal
     }
+    // Salin informasi game ke node baru
     strcpy(newNode->title, Title);
     strcpy(newNode->genre, Genre);
     strcpy(newNode->desc, Desc);
     strcpy(newNode->publisher, Publisher);
     newNode->rating = Rating;
     newNode->price = Price;
-    return newNode;
+    return newNode; // Kembalikan pointer ke node baru
 }
 
 void readShopFromFileForUsers(NodeGames **Shop) {
+    // Buka file Shop.txt untuk membaca data game toko
     FILE *file = fopen("Shop.txt", "r");
     if (!file) {
         fprintf(stderr, "Failed to open file\n");
@@ -235,51 +258,58 @@ void readShopFromFileForUsers(NodeGames **Shop) {
         return;
     }
 
-    char buffer[1024]; // Increased buffer size to handle larger lines
-    NodeGames **nodePtr = Shop;
+    char buffer[1024]; // Buffer untuk membaca baris dari file
+    NodeGames **nodePtr = Shop; // Pointer untuk menambahkan node ke daftar
 
+    // Membaca setiap baris dari file hingga akhir file
     while (fgets(buffer, sizeof(buffer), file)) {
         char Title[50], Genre[25], Desc[100], Publisher[50], PriceStr[10];
         float Rating, Price;
+        // Baca data game dari buffer
         if (sscanf(buffer, "Game: %49[^,], %24[^,], %99[^,], %49[^,], %f, %9s",
             Title, Genre, Desc, Publisher, &Rating, PriceStr) == 6) {
+            // Periksa apakah harga adalah "Free"
             if (strcmp(PriceStr, "Free") == 0) {
                 Price = 0.0;
             } else {
-                Price = atof(PriceStr); // Convert string to float
+                Price = atof(PriceStr); // Konversi string harga ke float
             }
+             // Buat node baru untuk game
             NodeGames *newNode = createNode(Title, Genre, Desc, Publisher, Rating, Price);
-            if (newNode == NULL) continue; // Handle memory allocation failure
-            *nodePtr = newNode;
-            nodePtr = &newNode->next;
+            if (newNode == NULL) continue; // Jika alokasi memori gagal, lanjutkan ke iterasi berikutnya
+            *nodePtr = newNode; // Tambahkan node baru ke daftar
+            nodePtr = &newNode->next; // Pindahkan pointer ke node berikutnya
         } else {
+            // Jika gagal mem-parsing data game, tampilkan pesan kesalahan
             printf("Failed to parse line: %s\n", buffer);
             getch();
         }
     }
-    fclose(file);
+    fclose(file); // Tutup file setelah selesai membaca
 }
 
 void DataShop(user **player[], NodeGames *Shop, int loginKey) {
     int pilihan, trigger = 0;
     char status[40];
 
+    // Periksa apakah data toko tersedia
     if (Shop == NULL) {
         printf("Error: Shop data is not available.\n");
         getch();
         return;
     }
 
-    int i = 0;
-    NodeGames *current = Shop;
+    int i = 0; // Inisialisasi variabel untuk nomor game
+    NodeGames *current = Shop; // Pointer ke game saat ini dalam daftar
 
     do {
-        system("cls");
+        system("cls");  // Bersihkan layar
         printf("Games List:\n");
         printf("____________________________________________________________________________________\n");
         printf("|No   |Title                                     |Publisher           |Genre      |Price   |Rating |\n");
         printf("|_____|_________________________________________|____________________|___________|________|_______|\n");
 
+         // Iterasi melalui daftar game dan tampilkan
         while (current != NULL) {
             printf("|%-4d |%-40s |%-20s |%-10s |%-7.2f |%-6.2f |\n", i+1, current->title, current->publisher, current->genre, current->price, current->rating);
             i++;
@@ -287,9 +317,11 @@ void DataShop(user **player[], NodeGames *Shop, int loginKey) {
         }
         printf("|_____|_________________________________________|____________________|___________|________|_______|\n");
 
+        // Tanyakan kepada pengguna apakah mereka ingin membeli game
         printf("Buy a game? Yes / No: "); scanf("%s", &status);
 
         if(strcmp(status, "Yes") == 0) {
+            // Minta pengguna memilih game untuk ditambahkan ke perpustakaan
             printf("Select a game to add to your library (enter the number): ");
             scanf("%d", &pilihan);
 
@@ -304,6 +336,7 @@ void DataShop(user **player[], NodeGames *Shop, int loginKey) {
                 current = current->next;
             }
 
+            // Tambahkan game ke perpustakaan pengguna
             addGameToLibrary(player, current, loginKey);
             appendGameToFile((*player)[loginKey], current);
 
@@ -315,7 +348,7 @@ void DataShop(user **player[], NodeGames *Shop, int loginKey) {
             system("cls");
             printf("Thank you for browsing!");
             getch();
-            trigger == 1;
+            trigger == 1; // Setel trigger untuk keluar dari loop
         }
 
         else {
@@ -325,51 +358,60 @@ void DataShop(user **player[], NodeGames *Shop, int loginKey) {
 }
 
 void addGameToLibrary(user **player[], NodeGames *selectedGame, int loginKey) {
+    // Alokasikan memori untuk game baru
     NodeGames *newGame = (NodeGames *)malloc(sizeof(NodeGames));
     if (!newGame) {
         fprintf(stderr, "Memory allocation failed for new game\n");
-        return;
-    }
+        return; // Kembalikan jika alokasi memori gagal
+    }       
 
+     // Salin informasi game dari game yang dipilih ke game baru
     strcpy(newGame->title, selectedGame->title);
     strcpy(newGame->genre, selectedGame->genre);
     strcpy(newGame->desc, selectedGame->desc);
     strcpy(newGame->publisher, selectedGame->publisher);
     newGame->rating = selectedGame->rating;
     newGame->price = selectedGame->price;
+    // Tambahkan game baru ke awal daftar game pengguna
     newGame->next = (*player)[loginKey]->Games;
-    (*player)[loginKey]->Games = newGame;
+    (*player)[loginKey]->Games = newGame; // Setel game baru sebagai head dari daftar game pengguna
 }
 
 
 void appendGameToFile(user *player, NodeGames *selectedGame) {
+    // Buka file games.txt untuk menambahkan data game baru
     FILE *file = fopen("games.txt", "a");
     if (!file) {
         perror("Failed to open games.txt");
-        return;
+        return; // Kembalikan jika gagal membuka file
     }
 
+    // Tulis data game baru ke file
     fprintf(file, "GamerTag: %s; Game: %s, %s, %s, %s, %.1f, %.2f\n",
             player->gamerTag, selectedGame->title, selectedGame->genre, selectedGame->desc, selectedGame->publisher, selectedGame->rating, selectedGame->price);
-
+    
+    // Tutup file setelah selesai menulis
     fclose(file);
 }
 
 
 void AddShop(NodeGames *Shop){
+    //Membuka file games.txt untuk dibaca
     FILE *file = fopen("games.txt", "r");
     if (!file) {
         perror("Failed to open the file");
         getch();
-        return;
+        return; // Return jika gagal membuka file
     }
 
+    // Temukan node terakhir dalam daftar game toko
     NodeGames* ptr = Shop;
     while(ptr->next != NULL){
         ptr = ptr->next;
     }
     ptr = ptr->next;
 
+    // Memasuki deskripsi game kita
     printf("Masukkan Judul dari Game yang ingin dimasukkan : ");
     scanf(" %[^\n]", ptr->title);
     printf("Masukkan Genre dari Game yang ingin dimasukkan : ");
