@@ -13,8 +13,7 @@
 #include <conio.h>
 #include <time.h>
 #include <ctype.h>
-#include "struct.h"
-#include "ReadFile.h"
+#include "Struct.h"
 #include "User.h"
 
 // Function main

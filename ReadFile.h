@@ -4,7 +4,7 @@
 #include <conio.h>
 #include <time.h>
 #include <ctype.h>
-#include "struct.h"
+#include "Struct.h"
 
 // Deklarasi fungsi-fungsi yang digunakan
 void readPlayersFromFile(user **players, int *numPlayers);

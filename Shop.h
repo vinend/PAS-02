@@ -4,7 +4,7 @@
 #include <conio.h>
 #include <time.h>
 #include <ctype.h>
-#include "struct.h"
+#include "Struct.h"
 #include "SearchingSorting.h"
 
 // Deklarasi fungsi-fungsi yang digunakan
@@ -14,6 +14,8 @@ void AddShop(NodeGames *Shop);
 void menuShopGames(user **player[], NodeGames *Shop, int Data);
 void addGameToLibrary(user **player[], NodeGames *selectedGame, int loginKey);
 void appendGameToFile(user *player, NodeGames *selectedGame);
+void sortShop(NodeGames **Shop);
+void searchingGame(NodeGames *shop);
 
 void DataShop(user **player[], NodeGames *Shop, int loginKey) {
     int pilihan, trigger = 0;
@@ -103,6 +105,7 @@ void AddShop(NodeGames *Shop){
     // Memasuki deskripsi game kita
     printf("Masukkan Judul dari Game yang ingin dimasukkan : ");
     scanf(" %[^\n]", ptr->title);
+    printf("%s", ptr->title);
     printf("Masukkan Genre dari Game yang ingin dimasukkan : ");
     scanf(" %[^\n]", ptr->genre);
     printf("Masukkan Deskripsi dari Game yang ingin dimasukkan : ");
@@ -242,4 +245,116 @@ void menuShopGames(user **player[], NodeGames *Shop, int loginkey) {
                 break;
         }
     } while (trigger == 0);
+}
+
+// Function untuk sorting pada shop
+void sortShop(NodeGames **Shop) {
+    system("cls");
+    
+    // Pendeklarasian variabel
+    int pilihan, pilihanSort;
+
+    // Tampilan pada menu sorting game shop
+    printf(" +-------------------------------------------------+\n");
+    printf(" |          SELAMAT DATANG DI GAME LIBRARY         |\n");
+    printf(" +-------------------------------------------------+\n");
+    printf(" | No. |              OPSI                         |\n");
+    printf(" +-----+-------------------------------------------+\n");
+    printf(" |  1  | Sorting Rating                            |\n");
+    printf(" +-----+-------------------------------------------+\n");
+    printf(" |  2  | Sorting Harga                             |\n");
+    printf(" +-----+-------------------------------------------+\n");
+    printf(" |  3  | Sorting Nama                              |\n");
+    printf(" +-----+-------------------------------------------+\n");
+    printf(" |  4  | Sorting Genre                             |\n");
+    printf(" +-----+-------------------------------------------+\n");
+    printf(" |  5  | Sorting Publisher                         |\n");
+    printf(" +-----+-------------------------------------------+\n");
+
+    // Memasukkan pilihan sorting
+    printf("Pilih Opsi: "); scanf("%d", &pilihan);
+    printf("Mau Naik Atau Turun (1 = Naik, 2 = Turun) : "); scanf("%d", &pilihanSort);
+
+    // Falling down pada switch case karena function yang digunakan sama
+    switch(pilihan) {
+        // Pilihan sorting rating
+        case 1:
+
+        // Pilihan sorting harga
+        case 2:
+        
+        // Pilihan sorting nama
+        case 3:
+
+        // Pilihan sorting genre
+        case 4:
+
+        // Pilihan sorting publisher
+        case 5:
+            MergeSort(Shop, pilihan, pilihanSort);
+            break;
+
+        // Error handling jika pilihan tidak sesuai
+        default:
+            system("cls"); 
+            printf("Input Tidak Benar"); 
+            getch();
+            break;
+    }
+}
+
+// Function untuk searching Game pada shop
+void searchingGame(NodeGames *shop) {
+    // Deklarasi variabel
+    system("cls");
+    int pilihan;
+    char Searching[100];
+
+    // Tampilan menu Searching shop
+    printf(" +-------------------------------------------------+\n");
+    printf(" |          SELAMAT DATANG DI GAME LIBRARY         |\n");
+    printf(" +-------------------------------------------------+\n");
+    printf(" | No. |              OPSI                         |\n");
+    printf(" +-----+-------------------------------------------+\n");
+    printf(" |  1  | Searching Title                           |\n");
+    printf(" +-----+-------------------------------------------+\n");
+    printf(" |  2  | Searching Genre                           |\n");
+    printf(" +-----+-------------------------------------------+\n");
+    printf(" |  3  | Searching Publisher                       |\n");
+    printf(" +-----+-------------------------------------------+\n");
+    printf("Pilih Opsi: "); scanf("%d", &pilihan); 
+
+    // Pilihan opsi
+    switch(pilihan) {
+        // Pilihan searching title
+        case 1: 
+            system("cls");
+            printf("Masukkan Title yang ingin di search: ");
+            scanf(" %[^\n]", Searching);
+            searchingStringShop(shop, Searching, pilihan);
+            break;
+
+        // Pilihan searching genre
+        case 2: 
+            system("cls");
+            printf("Masukkan Genre yang ingin di search: ");
+            scanf(" %[^\n]", Searching);
+            searchingStringShop(shop, Searching, pilihan);
+            break;
+
+        // Pilihan searching publisher
+        case 3: 
+            system("cls");
+            printf("Masukkan Publisher yang ingin di search: ");
+            scanf(" %[^\n]", Searching);
+            searchingStringShop(shop, Searching, pilihan);
+            break;
+
+        // Error handling jika input diluar pilihan
+        default:
+            system("cls"); 
+            printf("Input Tidak Benar"); 
+            getch();
+            break;
+    }
 }
