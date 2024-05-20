@@ -4,6 +4,8 @@
         "stdio.h": "c",
         "conio.h": "c",
         "struct.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "searchingsorting.h": "c",
+        "string.h": "c"
     }
 }
