@@ -105,6 +105,9 @@ GamesPtr SortedMerge(GamesPtr a, GamesPtr b, int pilihan, int PilihanSort) {
                 result->next = SortedMerge(a, b->next, pilihan, PilihanSort);
             }
         }
+        else {
+
+        }
     } 
     // Jika pilihan adalah sorting bedasarkan harga
     else if (pilihan == 2) {
@@ -127,6 +130,9 @@ GamesPtr SortedMerge(GamesPtr a, GamesPtr b, int pilihan, int PilihanSort) {
                 result = b;
                 result->next = SortedMerge(a, b->next, pilihan, PilihanSort);
             }
+        }
+        else {
+            
         }
     }
     // Jika pilihan adalah sorting bedasarkan nama
@@ -151,6 +157,9 @@ GamesPtr SortedMerge(GamesPtr a, GamesPtr b, int pilihan, int PilihanSort) {
                 result->next = SortedMerge(a, b->next, pilihan, PilihanSort);
             }
         }
+        else {
+            
+        }
     }
     // Jika pilihan adalah sorting bedasarkan genre
     else if (pilihan == 4){
@@ -174,6 +183,9 @@ GamesPtr SortedMerge(GamesPtr a, GamesPtr b, int pilihan, int PilihanSort) {
                 result->next = SortedMerge(a, b->next, pilihan, PilihanSort);
             }
         }
+        else {
+            
+        }
     }
     // Jika pilihan adalah sorting bedasarkan publisher
     else if (pilihan == 5){
@@ -196,6 +208,9 @@ GamesPtr SortedMerge(GamesPtr a, GamesPtr b, int pilihan, int PilihanSort) {
                 result = b;
                 result->next = SortedMerge(a, b->next, pilihan, PilihanSort);
             }
+        }
+        else {
+            
         }
     }
     // Error handling jika pilihan diluar yang disediakan
