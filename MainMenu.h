@@ -124,7 +124,7 @@ void libraryMenu(user **player[], int loginKey, NodeGames *Shop){
 
             // Pilihan menu untuk mempublish sebuah game
             case 5 :
-            AddShop(Shop);
+            AddShop(&Shop);
             break;
 
             // Pilihan menu untuk meyetting user

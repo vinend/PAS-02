@@ -14,6 +14,7 @@
 #include <time.h>
 #include <ctype.h>
 #include "Struct.h"
+#include "ReadFile.h"
 #include "User.h"
 
 // Function main
