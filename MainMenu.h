@@ -308,71 +308,67 @@ void userSettings(user **player[], int loginKey) {
 }
 
 // Function untuk mengupdate password
-void updatePasswordInFile(const char *gamerTag, const char *newPassword) {
-    // Membuka file players.txt
-    FILE *file = fopen("players.txt", "r+");
-
-    // Jika gagal membuka file
-    if (!file) {
-        perror("Failed to open the file");
+void updatePasswordInFile(const char* gamerTag, const char* newPassword) {
+    FILE *file = fopen("players.txt", "r");
+    if (file == NULL) {
+        perror("Gagal membuka players.txt");
         return;
     }
 
-    // Pendeklarasian variabel
-    char buffer[256];
-    long offset = 0;
-    int found = 0;
+    char tempFilename[] = "temp.txt";
+    FILE *tempFile = fopen(tempFilename, "w");
+    if (tempFile == NULL) {
+        perror("Gagal membuka temp.txt");
+        fclose(file);
+        return;
+    }
 
-    // Looping untuk mencari line yang sesuai dengan user yang diganti passwordnya
-    while (fgets(buffer, sizeof(buffer), file) != NULL) {
-        if (strstr(buffer, "GamerTag:") != NULL && strstr(buffer, gamerTag) != NULL) {
-            found = 1;
+    char line[256];
+    char currentGamerTag[256];
+    int isGamerTagLine = 0;
+    int passwordUpdated = 0;
 
-            // Membaca line sekarang
-            fgets(buffer, sizeof(buffer), file);
+    // Membaca setiap baris dari file asli
+    while (fgets(line, sizeof(line), file)) {
+        // Memeriksa apakah baris adalah GamerTag
+        if (strncmp(line, "GamerTag: ", 10) == 0) {
+            isGamerTagLine = 1;
+            strcpy(currentGamerTag, line + 10);
+            currentGamerTag[strcspn(currentGamerTag, "\n")] = '\0'; // Menghapus karakter newline
+        }
 
-            // Menghitung start position line tersebut
-            offset = ftell(file) - strlen(buffer);  
-            break;
+        // Memeriksa apakah baris adalah Password untuk GamerTag yang relevan
+        if (isGamerTagLine && strcmp(currentGamerTag, gamerTag) == 0 && strncmp(line, "Password: ", 10) == 0) {
+            fprintf(tempFile, "Password: %s\n", newPassword); // Menulis password baru ke file sementara
+            passwordUpdated = 1;
+            isGamerTagLine = 0; // Reset flag
+        } else {
+            fprintf(tempFile, "%s", line); // Menulis baris asli ke file sementara
+        }
+
+        if (strncmp(line, "Password: ", 10) == 0) {
+            isGamerTagLine = 0; // Reset flag setelah baris password
         }
     }
 
-    // Jika ditemukan
-    if (found) {
-        // Set pointer ke awal dari start position tersebut
-        fseek(file, offset, SEEK_SET);  
-
-        // Menghitung panjang password sebelumnya
-        int currentPassLength = strlen(strchr(buffer, ':') + 2) - 1;  
-        int newPassLength = strlen(newPassword);
-
-        // Memasukkan password baru dengan format yang benar
-        char newPassLine[256];
-        int written = snprintf(newPassLine, sizeof(newPassLine), "Password: %s\n", newPassword);
-
-        // Jika password lebih panjang akan di trunct agar muat
-        if (written > currentPassLength) {  
-            newPassLine[currentPassLength + 10] = '\n'; 
-            newPassLine[currentPassLength + 11] = '\0';
-        } 
-
-        // Jika password lebih pendek akan diberi space agar sesuai
-        else if (written < currentPassLength) {  
-            memset(newPassLine + written - 1, ' ', currentPassLength - written + 1);  
-            newPassLine[currentPassLength + 10] = '\n';
-            newPassLine[currentPassLength + 11] = '\0';
-        }
-
-        // Menuliskan password baru
-        fputs(newPassLine, file);
-    } 
-
-    // Jika tidak ditemukan gamertag yang sesuai
-    else {
-        printf("GamerTag not found.\n");
-        getch();
-    }
-
-    // Menutup file
     fclose(file);
+    fclose(tempFile);
+
+    // Mengganti file lama dengan file baru
+    remove("players.txt");
+    rename(tempFilename, "players.txt");
+
+    // Menambahkan password baru jika belum ada
+    if (!passwordUpdated) {
+        file = fopen("players.txt", "a");
+        if (file == NULL) {
+            perror("Gagal membuka players.txt untuk menambahkan data");
+            return;
+        }
+        fprintf(file, "GamerTag: %s\nPassword: %s\n", gamerTag, newPassword);
+        fclose(file);
+    }
+
+    printf("Password berhasil diperbarui.\n");
 }
+

@@ -18,3 +18,4 @@ GamerTag: BantalEmak; Game: The Witcher, RPG, Experience the excitement of fanta
 GamerTag: BantalEmak; Game: Gloomhaven, Board, Experience the excitement of mystery and exploration in this board game, Asmodee Digital, 4.0, 24.00
 GamerTag: Satani; Game: Isle of Skye, Board, Experience the excitement of mystery and exploration in this board game, Asmodee Digital, 4.0, 9.00
 GamerTag: Satani; Game: Portal 2, Puzzle, Solve mind-bending puzzles using portals in this classic, Valve, 4.0, 9.00
+GamerTag: BantalEmak; Game: Assassin's Creed Valhalla, Action/Adventure, Lead epic Viking raids against Saxon troops and fortresses, Ubisoft, 4.0, 59.00
