@@ -189,12 +189,15 @@ void pilihSort(user **player[], int jumlahData, int loginKey){
 
             // Pilihan sorting publisher
             case 5 : 
-            if(pilihanSort != 2 || pilihanSort != 1){
-                printf("Input tidak benar !");
-                getch();
+            if(pilihanSort == 2 || pilihanSort == 1){
+                MergeSort(&(*player)[loginKey]->Games, pilihan, pilihanSort);
                 break;
             }
-            MergeSort(&(*player)[loginKey]->Games, pilihan, pilihanSort);
+            else{
+                printf("Input tidak benar !");
+                getch();
+            }
+            
             break;
 
             // Jika pilihan diluar yang disediakan

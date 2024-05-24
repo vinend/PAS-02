@@ -110,7 +110,7 @@ void createUser(user **playerLogin, int *numPlayersLogin) {
     
     // Membuat game pada user baru menjadi NULL
     newUser->Games = NULL;
-    *playerLogin = newUser;
+    playerLogin[*numPlayersLogin] = newUser;
     *numPlayersLogin = *numPlayersLogin + 1; 
 }
 

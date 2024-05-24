@@ -314,3 +314,4 @@ Game: Jaipur, Board, Experience the excitement of mystery and exploration in thi
 Game: Carcassonne, Board, Experience the excitement of mystery and exploration in this board game, Asmodee Digital, 4.5, 9.99
 Game: Grand Theft Auto IV, Open World, Niko bellic struggles to understand the meaning of life, Rockstar Games, 4.5, 10.00
 Game: Free Fire, FPS, A big open battle royale for mobile enjoyers, Garena, 1.0, 0.00
+Game: Counter Strike 1.6, FPS, Game tembak tembakan, Valve, 4.0, 10.00
