@@ -13,7 +13,7 @@ void readShopFromFileForUsers(NodeGames **Shop);
 NodeGames* createNode(char *Title, char *Genre, char *Desc, char *Publisher, int Rating, int Price);
 
 void readPlayersFromFile(user **players, int *numPlayers) {
-     // Buka file players.txt untuk membaca data pengguna
+    // Buka file players.txt untuk membaca data pengguna
     FILE *file = fopen("players.txt", "r");
     if (!file) {
         printf("Failed to open the file.\n");
@@ -28,15 +28,27 @@ void readPlayersFromFile(user **players, int *numPlayers) {
     // Membaca setiap baris dari file hingga akhir file
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
         newUser = (user *)malloc(sizeof(user));
+        if (newUser == NULL) {
+            printf("Memory allocation failed.\n");
+            break;
+        }
+        
         // Baca gamerTag dari buffer
         if (sscanf(buffer, "GamerTag: %99[^\n]", newUser->gamerTag) == 1) {
             // Baca password dari baris berikutnya dalam file
             if (fgets(buffer, sizeof(buffer), file) && sscanf(buffer, "Password: %99[^\n]", newUser->password) == 1) {
-                newUser->Games = NULL; // Inisialisasi pointer ke game sebagai NULL
-                players[index++] = newUser;  // Tambahkan pengguna baru ke array pemain
+                // Baca uang dari baris berikutnya dalam file
+                if (fgets(buffer, sizeof(buffer), file) && sscanf(buffer, "Uang : %f", &newUser->Uang) == 1) {
+                    newUser->Games = NULL; // Inisialisasi pointer ke game sebagai NULL
+                    players[index++] = newUser; // Tambahkan pengguna baru ke array pemain
+                } else {
+                    free(newUser); // Bebaskan memori jika membaca uang gagal
+                }
             } else {
                 free(newUser); // Bebaskan memori jika membaca password gagal
             }
+        } else {
+            free(newUser); // Bebaskan memori jika membaca gamerTag gagal
         }
     }
 

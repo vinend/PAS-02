@@ -11,7 +11,7 @@
 void generateGameKeys(NodeGames *Shop);
 void appendGameKeysToFile(NodeGames *Shop);
 void generateGameKey(char *key, int length);
-void appendUser(const char username[], const char password[]);
+void appendUser(const char username[], const char password[], float Uang);
 void flushInput();
 void randomPassGen(char *pass, int length);
 void createUser(user **playerLogin, int *numPlayerLogin);
@@ -44,6 +44,7 @@ void createUser(user **playerLogin, int *numPlayersLogin) {
     // Pendeklarasian variabel
     char bufferUsername[100];
     char bufferPassword[100];
+    float bufferUang;
     user *newUser = (user*)malloc(sizeof(user));
 
     // Error handling jika pengalokasian memori gagal
@@ -98,13 +99,15 @@ void createUser(user **playerLogin, int *numPlayersLogin) {
             getch();
         }
     } while (trigger == 0);
-
-    // Copy string ke buffer
+    printf("Masukkan uang yang dimiliki sekarang : ");
+    scanf("%f", bufferUang);
+    // Copy input ke buffer
     strcpy(bufferUsername, newUser->gamerTag);
     strcpy(bufferPassword, newUser->password);
+    newUser->Uang = bufferUang;
 
     // Append user baru ke dalam file untuk file handling
-    appendUser(bufferUsername, bufferPassword);
+    appendUser(bufferUsername, bufferPassword, bufferUang);
     
     system("cls");
     
@@ -115,7 +118,7 @@ void createUser(user **playerLogin, int *numPlayersLogin) {
 }
 
 // Function untuk mengappend user
-void appendUser(const char username[], const char password[]) {
+void appendUser(const char username[], const char password[], float Uang) {
     // Membuka file players.txt
     FILE *file = fopen("players.txt", "a");
 
@@ -128,7 +131,8 @@ void appendUser(const char username[], const char password[]) {
 
     // Mengappend user ke dalam file
     fprintf(file, "\nGamerTag: %s\n", username);
-    fprintf(file, "Password: %s", password);
+    fprintf(file, "Password: %s\n", password);
+    fprintf(file, "Uang: %.2f", Uang);
 
     // Menutup kembali file tersebut
     fclose(file);

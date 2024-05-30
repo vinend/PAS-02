@@ -12,8 +12,6 @@ void redeemGame(user **player[], NodeGames *Shop, int loginKey);
 void DataShop(user **player[], NodeGames *Shop, int loginKey);
 void AddShop(NodeGames **Shop);
 void menuShopGames(user **player[], NodeGames *Shop, int Data);
-void addGameToLibrary(user **player[], NodeGames *selectedGame, int loginKey);
-void appendGameToFile(user *player, NodeGames *selectedGame);
 
 void DataShop(user **player[], NodeGames *Shop, int loginKey) {
     int pilihan, trigger = 0;
@@ -69,6 +67,7 @@ void DataShop(user **player[], NodeGames *Shop, int loginKey) {
 
             (*player)[loginKey]->Uang -= current->price;
             printf("Uang anda sisa : %.2f", (*player)[loginKey]->Uang);
+            updateUangInFile((*player)[loginKey]->gamerTag, (*player)[loginKey]->Uang);
 
             printf("Game added to your library!\n");
             getch();
@@ -206,6 +205,7 @@ void redeemGame(user **player[], NodeGames *Shop, int loginKey) {
                     printf("%s added to your library!\n", current->title);
                     (*player)[loginKey]->Uang -= current->price;
                     printf("Uang anda sisa : %.2f", (*player)[loginKey]->Uang);
+                    updateUangInFile((*player)[loginKey]->gamerTag, (*player)[loginKey]->Uang);
                     break;
             }
             current = current->next;

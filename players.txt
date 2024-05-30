@@ -1,7 +1,9 @@
 GamerTag: BantalEmak
 Password: NewPass
+Uang : 1231.00
 GamerTag: lerainfrog
 Password: pas
+Uang : 1000.00
 GamerTag: ferroDactyl
 Password: pass789
 GamerTag: WuzT

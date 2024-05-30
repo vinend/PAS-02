@@ -28,3 +28,4 @@ GamerTag: Andi; Game: Apex Legends, Battle Royale, Squad up and compete to be th
 GamerTag: BantalEmak; Game: Grand Theft Auto IV, Open World, Niko bellic struggles to understand the meaning of life, Rockstar Games, 4.0, 10.00
 GamerTag: BantalEmak; Game: The Legend of Zelda Breath of the Wild, Action/Adventure, Explore the vast kingdom of Hyrule in this open-world adventure, Nintendo, 4.0, 59.00
 GamerTag: BantalEmak; Game: Persona 5, RPG, Join the Phantom Thieves and fight against corruption in this stylish RPG, Atlus, 4.0, 59.00
+GamerTag: BantalEmak; Game: Root, Board, Experience the excitement of mystery and exploration in this board game, Dire Wolf Digital, 4.0, 19.00

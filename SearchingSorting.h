@@ -20,6 +20,7 @@ void searchingGame(user **player[], NodeGames *Shop, int loginKey);
 void searchingStringShop(user **player[], NodeGames *Shop, char namaDicari[], int i, int loginKey);
 void addGameToLibrary(user **player[], NodeGames *selectedGame, int loginKey);
 void appendGameToFile(user *player, NodeGames *selectedGame);
+void updateUangInFile(const char* gamerTag, double newUang);
 
 // Function untuk swap 2 pointer
 GamesPtr swap(GamesPtr ptr1, GamesPtr ptr2) {
@@ -449,6 +450,7 @@ void searchingStringShop(user **player[], NodeGames *Shop, char namaDicari[], in
 
             (*player)[loginKey]->Uang -= current->price;
             printf("Uang anda sisa : %.2f", (*player)[loginKey]->Uang);
+            updateUangInFile((*player)[loginKey]->gamerTag, (*player)[loginKey]->Uang);
 
             printf("Game added to your library!\n");
             getch();

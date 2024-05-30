@@ -16,8 +16,9 @@ void pilihSearch(user **player[], int jumlahData, int loginKey);
 void userSettings(user **player[], int loginKey);
 void updatePasswordInFile(const char *gamerTag, const char *newPassword);
 void generateTopUpCode(char *code, int length);
-void topUpUang(const char *filename, int amount);
+void topUpUang(const char *filename, float amount);
 float redeemUang(const char *filename, const char *code);
+void updateUangInFile(const char* gamerTag, double newUang);
 
 // Function untuk melihat data dari player
 void lihatData(user **player[], int loginKey) {
@@ -52,7 +53,7 @@ void lihatData(user **player[], int loginKey) {
     }
     printf("|_____|___________________________|_____________________|_______________|__________|__________|\n");
 
-    printf("Jumlah uang sekarang : ", (*player)[loginKey]->Games);
+    printf("Jumlah uang sekarang : %.2f", (*player)[loginKey]->Uang);
     getch();
 }
 
@@ -79,7 +80,7 @@ void libraryMenu(user **player[], int loginKey, NodeGames *Shop){
     }
     printf("|_____|___________________________|_____________________|_______________|__________|__________|\n");
 
-    printf("Jumlah uang sekarang : ", (*player)[loginKey]->Games);
+    printf("Jumlah uang sekarang : %.2f", (*player)[loginKey]->Uang);
     getch();
     
     // Looping jika belum pilihan keluar menu
@@ -103,11 +104,11 @@ void libraryMenu(user **player[], int loginKey, NodeGames *Shop){
         printf(" +-----+-------------------------------------------+\n");
         printf(" |  6. | User Settings                             |\n");
         printf(" +-----+-------------------------------------------+\n");
-        printf(" |  7. | Logging Out                               |\n");
+        printf(" |  7. | Top Up Uang                               |\n");
         printf(" +-----+-------------------------------------------+\n");
-        printf(" |  8. | Top Up Uang                               |\n");
+        printf(" |  8. | Redeem Uang                               |\n");
         printf(" +-----+-------------------------------------------+\n");
-        printf(" |  9. | Redeem Uang                               |\n");
+        printf(" |  9. | Logging Out                               |\n");
         printf(" +-----+-------------------------------------------+\n");
         printf("Pilih Opsi: "); scanf("%d", &pilihan);
 
@@ -145,29 +146,33 @@ void libraryMenu(user **player[], int loginKey, NodeGames *Shop){
             break;
 
             // Pilihan keluar dari menu ini
-            case 7 :
+            case 9 :
             trigger = 1;
             break;
 
-            case 8 : 
+            case 7 : 
             float amount;
             printf("Masukkan jumlah uang yang ingin di topup : ");
-            scanf("%d", &amount);
+            scanf("%f", &amount);
             topUpUang("code.txt", amount);
+            getch();
             break;
 
-            case 9 : 
+            case 8 : 
             char code[MAX_CODE_LENGTH + 1];
             printf("Enter the code to redeem: ");
             scanf("%s", code);
             float redeemedAmount = redeemUang("code.txt", code);
+            printf("Redeemed Amount : %.2f\n", redeemedAmount);
             if (redeemedAmount > 0) {
                 (*player)[loginKey]->Uang += redeemedAmount;
-                printf("You now have %.2f", (*player)[loginKey]->Uang);
-                printf(".\n");
+                printf("Uang sekarang menjadi : %.2f", (*player)[loginKey]->Uang);
+                updateUangInFile((*player)[loginKey]->gamerTag, (*player)[loginKey]->Uang);
+                getch();
             } 
             else {
                 printf("Invalid code or already redeemed.\n");
+                getch();
             }
             break;
 
@@ -427,11 +432,12 @@ void generateTopUpCode(char *code, int length) {
 }
 
 // Function to top up primogems with a new code
-void topUpUang(const char *filename, int amount) {
+void topUpUang(const char *filename, float amount) {
     char code[MAX_CODE_LENGTH + 1];
     generateTopUpCode(code, MAX_CODE_LENGTH);
     FILE *file = fopen(filename, "w+");
-    fprintf(file, "%s %d", code, amount);
+    printf("Code untuk top up adalah : %s", code);
+    fprintf(file, "%s %f", code, amount);
     fclose(file);
 }
 
@@ -440,7 +446,8 @@ float redeemUang(const char *filename, const char *code) {
     char Kode[100];
     float Uang;
     FILE *file = fopen(filename, "r+");
-    fscanf(file,"%s %d", Kode, &Uang);
+    fscanf(file,"%20s %f", Kode, &Uang);
+    printf("Uang %.2f\n", Uang);
     if(strcmp(Kode,code) == 1){
         fclose(file);
         return 0;
@@ -449,4 +456,68 @@ float redeemUang(const char *filename, const char *code) {
         fclose(file);
         return Uang;
     }
+}
+
+void updateUangInFile(const char* gamerTag, double newUang) {
+    FILE *file = fopen("players.txt", "r");
+    if (file == NULL) {
+        perror("Gagal membuka players.txt");
+        return;
+    }
+
+    char tempFilename[] = "temp.txt";
+    FILE *tempFile = fopen(tempFilename, "w");
+    if (tempFile == NULL) {
+        perror("Gagal membuka temp.txt");
+        fclose(file);
+        return;
+    }
+
+    char line[256];
+    char currentGamerTag[256];
+    int isGamerTagLine = 0;
+    int uangUpdated = 0;
+
+    // Membaca setiap baris dari file asli
+    while (fgets(line, sizeof(line), file)) {
+        // Memeriksa apakah baris adalah GamerTag
+        if (strncmp(line, "GamerTag: ", 10) == 0) {
+            isGamerTagLine = 1;
+            strcpy(currentGamerTag, line + 10);
+            currentGamerTag[strcspn(currentGamerTag, "\n")] = '\0'; // Menghapus karakter newline
+        }
+
+        // Memeriksa apakah baris adalah Uang untuk GamerTag yang relevan
+        if (isGamerTagLine && strcmp(currentGamerTag, gamerTag) == 0 && strncmp(line, "Uang : ", 7) == 0) {
+            fprintf(tempFile, "Uang : %.2f\n", newUang); // Menulis uang baru ke file sementara
+            uangUpdated = 1;
+            isGamerTagLine = 0; // Reset flag setelah baris uang
+        } else {
+            fprintf(tempFile, "%s", line); // Menulis baris asli ke file sementara
+        }
+
+        if (strncmp(line, "Uang : ", 7) == 0) {
+            isGamerTagLine = 0; // Reset flag setelah baris uang
+        }
+    }
+
+    fclose(file);
+    fclose(tempFile);
+
+    // Mengganti file lama dengan file baru
+    remove("players.txt");
+    rename(tempFilename, "players.txt");
+
+    // Menambahkan uang baru jika belum ada
+    if (!uangUpdated) {
+        file = fopen("players.txt", "a");
+        if (file == NULL) {
+            perror("Gagal membuka players.txt untuk menambahkan data");
+            return;
+        }
+        fprintf(file, "GamerTag: %s\nUang : %.2f\n", gamerTag, newUang);
+        fclose(file);
+    }
+
+    printf("Uang berhasil diperbarui.\n");
 }
