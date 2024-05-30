@@ -16,8 +16,10 @@ void FrontBackSplit(GamesPtr source, GamesPtr* frontRef, GamesPtr* backRef);
 GamesPtr SortedMerge(GamesPtr a, GamesPtr b, int pilihan, int PilihanSort);
 void MergeSort(GamesPtr* headRef, int pilihan, int PilihanSort);
 void sortShop(NodeGames **Shop);\
-void searchingGame(NodeGames *shop);
-void searchingStringShop(NodeGames *Shop, char namaDicari[], int i);
+void searchingGame(user **player[], NodeGames *Shop, int loginKey);
+void searchingStringShop(user **player[], NodeGames *Shop, char namaDicari[], int i, int loginKey);
+void addGameToLibrary(user **player[], NodeGames *selectedGame, int loginKey);
+void appendGameToFile(user *player, NodeGames *selectedGame);
 
 // Function untuk swap 2 pointer
 GamesPtr swap(GamesPtr ptr1, GamesPtr ptr2) {
@@ -314,7 +316,7 @@ void searchingString(user **player[], char* namaDicari, int i, int loginKey){
 
 
 // Function untuk searching Game pada shop
-void searchingGame(NodeGames *shop) {
+void searchingGame(user **player[], NodeGames *Shop, int loginKey) {
     // Deklarasi variabel
     system("cls");
     int pilihan;
@@ -341,7 +343,7 @@ void searchingGame(NodeGames *shop) {
             system("cls");
             printf("Masukkan Title yang ingin di search: ");
             scanf(" %[^\n]", Searching);
-            searchingStringShop(shop, Searching, pilihan);
+            searchingStringShop(player, Shop, Searching, pilihan, loginKey);
             break;
 
         // Pilihan searching genre
@@ -349,7 +351,7 @@ void searchingGame(NodeGames *shop) {
             system("cls");
             printf("Masukkan Genre yang ingin di search: ");
             scanf(" %[^\n]", Searching);
-            searchingStringShop(shop, Searching, pilihan);
+            searchingStringShop(player, Shop, Searching, pilihan, loginKey);
             break;
 
         // Pilihan searching publisher
@@ -357,7 +359,7 @@ void searchingGame(NodeGames *shop) {
             system("cls");
             printf("Masukkan Publisher yang ingin di search: ");
             scanf(" %[^\n]", Searching);
-            searchingStringShop(shop, Searching, pilihan);
+            searchingStringShop(player, Shop, Searching, pilihan, loginKey);
             break;
 
         // Error handling jika input diluar pilihan
@@ -370,55 +372,99 @@ void searchingGame(NodeGames *shop) {
 }
 
 // Function untuk searching string pada shop
-void searchingStringShop(NodeGames *Shop, char namaDicari[], int i) {
+void searchingStringShop(user **player[], NodeGames *Shop, char namaDicari[], int i, int loginKey) {
+    int pilihan, trigger = 0;
+    char status[40];
     // Deklarasi variabel
     int j = 0;
     int found = 0;
 
-    // String to lower nama yang ingin dicari
-    string_to_lower(namaDicari);
+    do{
+        // String to lower nama yang ingin dicari
+        string_to_lower(namaDicari);
 
-    NodeGames *current = Shop;
+        NodeGames *current = Shop;
 
-    printf("Data:\n");
-    printf("_______________________________________________________________________________________________\n");
-    printf("|No   |Title Game                 |Publisher            |Genre          |Price     |Rating    |\n");
-    printf("|_____|___________________________|_____________________|_______________|__________|__________|\n");
+        printf("Data:\n");
+        printf("_______________________________________________________________________________________________\n");
+        printf("|No   |Title Game                 |Publisher            |Genre          |Price     |Rating    |\n");
+        printf("|_____|___________________________|_____________________|_______________|__________|__________|\n");
 
-    // Looping jika current masih NULL
-    while (current != NULL) {
-        char currentNameLower[100];
-        
-        // Jika pilihan searching title
-        if (i == 1) {
-            strcpy(currentNameLower, current->title);
-        } 
+        // Looping jika current masih NULL
+        while (current != NULL) {
+            char currentNameLower[100];
+            
+            // Jika pilihan searching title
+            if (i == 1) {
+                strcpy(currentNameLower, current->title);
+            } 
 
-        // Jika pilihan searching genre
-        else if (i == 2) {
-            strcpy(currentNameLower, current->genre);
-        } 
+            // Jika pilihan searching genre
+            else if (i == 2) {
+                strcpy(currentNameLower, current->genre);
+            } 
 
-        // Jika pilihan searching publisher
-        else if (i == 3) {
-            strcpy(currentNameLower, current->publisher);
+            // Jika pilihan searching publisher
+            else if (i == 3) {
+                strcpy(currentNameLower, current->publisher);
+            }
+
+            // String to lower nama pada current
+            string_to_lower(currentNameLower);
+
+            // Compare hasil string
+            if (strstr(currentNameLower, namaDicari) != NULL) {
+                printf("|%-4d |%-26s |%-20s |%-15s|%-10.2f|%-10.2f|\n", j+1, current->title, current->publisher, current->genre, current->price, current->rating);
+                found = 1;
+            }
+
+            // Pindah ke node next
+            current = current->next;
+            j++;
         }
 
-        // String to lower nama pada current
-        string_to_lower(currentNameLower);
+        printf("|_____|___________________________|_____________________|_______________|__________|__________|\n");
 
-        // Compare hasil string
-        if (strstr(currentNameLower, namaDicari) != NULL) {
-            printf("|%-4d |%-26s |%-20s |%-15s|%-10.2f|%-10.2f|\n", j+1, current->title, current->publisher, current->genre, current->price, current->rating);
-            found = 1;
+        printf("Buy a game? Yes / No: "); scanf("%s", &status);
+
+        if(strcmp(status, "Yes") == 0 || strcmp(status, "yes") == 0) {
+            // Minta pengguna memilih game untuk ditambahkan ke perpustakaan
+            printf("Select a game to add to your library (enter the number): ");
+            scanf("%d", &pilihan);
+
+            if (pilihan < 1 || pilihan > i) {
+            printf("Invalid selection. Please try again.\n");
+            getch();
+            return;
+            }
+
+            current = Shop;
+            for (int j = 1; j < pilihan; j++) {
+                current = current->next;
+            }
+
+            // Tambahkan game ke perpustakaan pengguna
+            addGameToLibrary(player, current, loginKey);
+            appendGameToFile((*player)[loginKey], current);
+
+            (*player)[loginKey]->Uang -= current->price;
+            printf("Uang anda sisa : %.2f", (*player)[loginKey]->Uang);
+
+            printf("Game added to your library!\n");
+            getch();
         }
 
-        // Pindah ke node next
-        current = current->next;
-        j++;
-    }
+        else if(strcmp(status, "No") == 0 || strcmp(status, "no") == 0) {
+            system("cls");
+            printf("Thank you for browsing!");
+            getch();
+            trigger == 1; // Setel trigger untuk keluar dari loop
+        }
 
-    printf("|_____|___________________________|_____________________|_______________|__________|__________|\n");
+        else {
+            printf("Please input a valid answer!");
+        }
+    }while(trigger == 1);
 
     // Error handling jika data tidak ada yang sesuai
     if (!found) {

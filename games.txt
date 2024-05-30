@@ -25,3 +25,6 @@ GamerTag: Budi; Game: Resident Evil Village, Horror, Survive the horrors of a re
 GamerTag: Andi; Game: Portal 2, Puzzle, Experience the excitement of mystery and exploration in this puzzle game, Valve, 4.0, 9.00
 GamerTag: Andi; Game: Gran Turismo Sport, Racing, Experience the excitement of racing in this realistic racing game, Polyphony Digital, 4.0, 19.00
 GamerTag: Andi; Game: Apex Legends, Battle Royale, Squad up and compete to be the last team standing in this fast-paced battle royale, Respawn Entertainment, 4.0, 0.00
+GamerTag: BantalEmak; Game: Grand Theft Auto IV, Open World, Niko bellic struggles to understand the meaning of life, Rockstar Games, 4.0, 10.00
+GamerTag: BantalEmak; Game: The Legend of Zelda Breath of the Wild, Action/Adventure, Explore the vast kingdom of Hyrule in this open-world adventure, Nintendo, 4.0, 59.00
+GamerTag: BantalEmak; Game: Persona 5, RPG, Join the Phantom Thieves and fight against corruption in this stylish RPG, Atlus, 4.0, 59.00

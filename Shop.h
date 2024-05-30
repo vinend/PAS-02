@@ -34,7 +34,7 @@ void DataShop(user **player[], NodeGames *Shop, int loginKey) {
         printf("Games List:\n");
         printf("____________________________________________________________________________________\n");
         printf("|No   |Title                                     |Publisher           |Genre      |Price   |Rating |\n");
-        printf("|_____|_________________________________________|____________________|___________|________|_______|\n");
+        printf("|_____|__________________________________________|____________________|___________|________|_______|\n");
 
          // Iterasi melalui daftar game dan tampilkan
         while (current != NULL) {
@@ -42,12 +42,12 @@ void DataShop(user **player[], NodeGames *Shop, int loginKey) {
             i++;
             current = current->next;
         }
-        printf("|_____|_________________________________________|____________________|___________|________|_______|\n");
+        printf("|_____|__________________________________________|____________________|___________|________|_______|\n");
 
         // Tanyakan kepada pengguna apakah mereka ingin membeli game
         printf("Buy a game? Yes / No: "); scanf("%s", &status);
 
-        if(strcmp(status, "Yes") == 0) {
+        if(strcmp(status, "Yes") == 0 || strcmp(status, "yes") == 0) {
             // Minta pengguna memilih game untuk ditambahkan ke perpustakaan
             printf("Select a game to add to your library (enter the number): ");
             scanf("%d", &pilihan);
@@ -67,11 +67,14 @@ void DataShop(user **player[], NodeGames *Shop, int loginKey) {
             addGameToLibrary(player, current, loginKey);
             appendGameToFile((*player)[loginKey], current);
 
+            (*player)[loginKey]->Uang -= current->price;
+            printf("Uang anda sisa : %.2f", (*player)[loginKey]->Uang);
+
             printf("Game added to your library!\n");
             getch();
         }
 
-        else if(strcmp(status, "No") == 0) {
+        else if(strcmp(status, "No") == 0 || strcmp(status, "no") == 0) {
             system("cls");
             printf("Thank you for browsing!");
             getch();
@@ -201,6 +204,8 @@ void redeemGame(user **player[], NodeGames *Shop, int loginKey) {
                     addGameToLibrary(player, current, loginKey);
                     appendGameToFile((*player)[loginKey], current);
                     printf("%s added to your library!\n", current->title);
+                    (*player)[loginKey]->Uang -= current->price;
+                    printf("Uang anda sisa : %.2f", (*player)[loginKey]->Uang);
                     break;
             }
             current = current->next;
@@ -250,7 +255,7 @@ void menuShopGames(user **player[], NodeGames *Shop, int loginkey) {
             
             // Pilihan untuk searching game
             case 2:
-                searchingGame(Shop);
+                searchingGame(player, Shop, loginkey);
                 break;
 
             // Pilihan untuk meredeem game

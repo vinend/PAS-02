@@ -35,6 +35,7 @@ typedef NodeGames *GamesPtr; // Alias untuk pointer ke struct videoGames
 struct User{
     char gamerTag[100];
     char password[100];
+    float Uang;
     GamesPtr Games; 
 };
 #endif

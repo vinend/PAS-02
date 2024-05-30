@@ -1,5 +1,5 @@
 // Program Platform Library Aplikasi dan Game
-// Versi 1.0
+// Versi 2.0
 
 // Anggota Kelompok 2 :
 // 1. Andi Muhammad Alvin Farhansyah

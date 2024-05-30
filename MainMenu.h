@@ -6,6 +6,7 @@
 #include <ctype.h>
 #include "Struct.h"
 #include "Shop.h"
+#define MAX_CODE_LENGTH 20
 
 // Deklarasi fungsi-fungsi yang digunakan
 void lihatData(user **player[], int loginKey);
@@ -14,6 +15,9 @@ void pilihSort(user **player[], int jumlahData, int loginKey);
 void pilihSearch(user **player[], int jumlahData, int loginKey);
 void userSettings(user **player[], int loginKey);
 void updatePasswordInFile(const char *gamerTag, const char *newPassword);
+void generateTopUpCode(char *code, int length);
+void topUpUang(const char *filename, int amount);
+float redeemUang(const char *filename, const char *code);
 
 // Function untuk melihat data dari player
 void lihatData(user **player[], int loginKey) {
@@ -47,6 +51,8 @@ void lihatData(user **player[], int loginKey) {
         current = current->next;
     }
     printf("|_____|___________________________|_____________________|_______________|__________|__________|\n");
+
+    printf("Jumlah uang sekarang : ", (*player)[loginKey]->Games);
     getch();
 }
 
@@ -72,6 +78,8 @@ void libraryMenu(user **player[], int loginKey, NodeGames *Shop){
         i++;
     }
     printf("|_____|___________________________|_____________________|_______________|__________|__________|\n");
+
+    printf("Jumlah uang sekarang : ", (*player)[loginKey]->Games);
     getch();
     
     // Looping jika belum pilihan keluar menu
@@ -96,6 +104,10 @@ void libraryMenu(user **player[], int loginKey, NodeGames *Shop){
         printf(" |  6. | User Settings                             |\n");
         printf(" +-----+-------------------------------------------+\n");
         printf(" |  7. | Logging Out                               |\n");
+        printf(" +-----+-------------------------------------------+\n");
+        printf(" |  8. | Top Up Uang                               |\n");
+        printf(" +-----+-------------------------------------------+\n");
+        printf(" |  9. | Redeem Uang                               |\n");
         printf(" +-----+-------------------------------------------+\n");
         printf("Pilih Opsi: "); scanf("%d", &pilihan);
 
@@ -135,6 +147,28 @@ void libraryMenu(user **player[], int loginKey, NodeGames *Shop){
             // Pilihan keluar dari menu ini
             case 7 :
             trigger = 1;
+            break;
+
+            case 8 : 
+            float amount;
+            printf("Masukkan jumlah uang yang ingin di topup : ");
+            scanf("%d", &amount);
+            topUpUang("code.txt", amount);
+            break;
+
+            case 9 : 
+            char code[MAX_CODE_LENGTH + 1];
+            printf("Enter the code to redeem: ");
+            scanf("%s", code);
+            float redeemedAmount = redeemUang("code.txt", code);
+            if (redeemedAmount > 0) {
+                (*player)[loginKey]->Uang += redeemedAmount;
+                printf("You now have %.2f", (*player)[loginKey]->Uang);
+                printf(".\n");
+            } 
+            else {
+                printf("Invalid code or already redeemed.\n");
+            }
             break;
 
             // Jika pilihan diluar yang disediakan
@@ -380,3 +414,39 @@ void updatePasswordInFile(const char* gamerTag, const char* newPassword) {
     printf("Password berhasil diperbarui.\n");
 }
 
+// Function to generate a random top-up code
+void generateTopUpCode(char *code, int length) {
+    const char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+    for (int i = 0; i < length; i++) {
+        int index = rand() % (int)(sizeof(charset) - 1);
+        code[i] = charset[index];
+    }
+
+    code[length] = '\0';
+}
+
+// Function to top up primogems with a new code
+void topUpUang(const char *filename, int amount) {
+    char code[MAX_CODE_LENGTH + 1];
+    generateTopUpCode(code, MAX_CODE_LENGTH);
+    FILE *file = fopen(filename, "w+");
+    fprintf(file, "%s %d", code, amount);
+    fclose(file);
+}
+
+// Function to redeem primogems with a code
+float redeemUang(const char *filename, const char *code) {
+    char Kode[100];
+    float Uang;
+    FILE *file = fopen(filename, "r+");
+    fscanf(file,"%s %d", Kode, &Uang);
+    if(strcmp(Kode,code) == 1){
+        fclose(file);
+        return 0;
+    }
+    else{
+        fclose(file);
+        return Uang;
+    }
+}
