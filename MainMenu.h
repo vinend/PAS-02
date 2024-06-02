@@ -19,6 +19,9 @@ void generateTopUpCode(char *code, int length);
 void topUpUang(const char *filename, float amount);
 float redeemUang(const char *filename, const char *code);
 void updateUangInFile(const char* gamerTag, double newUang);
+void refundGame(user **player[], int loginKey);
+void deleteGameFromFile(const char *gamerTag, const char *gameTitle);
+
 
 // Function untuk melihat data dari player
 void lihatData(user **player[], int loginKey) {
@@ -55,6 +58,111 @@ void lihatData(user **player[], int loginKey) {
 
     printf("Jumlah uang sekarang : %.2f", (*player)[loginKey]->Uang);
     getch();
+}
+
+void refundGame(user **player[], int loginKey) {
+    if (player == NULL || *player == NULL) {
+        printf("Error: Player data is not available.\n");
+        getch();
+        return;
+    }
+
+    if ((*player)[loginKey]->Games == NULL) {
+        printf("No games in your library for %s.\n", (*player)[loginKey]->gamerTag);
+        getch();
+        return;
+    }
+
+    int i = 0;
+    NodeGames *current = (*player)[loginKey]->Games;
+    NodeGames *prev = NULL;
+
+    printf("Games in your library:\n");
+    printf("_______________________________________________________________________________________________\n");
+    printf("|No   |Title Game                 |Publisher            |Genre          |Price     |Rating    |\n");
+    printf("|_____|___________________________|_____________________|_______________|__________|__________|\n");
+
+    while (current != NULL) {
+        printf("|%-4d |%-26s |%-20s |%-15s|%-10.2f|%-10.2f|\n", i+1, current->title, current->publisher, current->genre, current->price, current->rating);
+        current = current->next;
+        i++;
+    }
+    printf("|_____|___________________________|_____________________|_______________|__________|__________|\n");
+
+    int choice;
+    printf("Select the game number you want to refund: ");
+    scanf("%d", &choice);
+
+    if (choice < 1 || choice > i) {
+        printf("Invalid selection. Please try again.\n");
+        getch();
+        return;
+    }
+
+    current = (*player)[loginKey]->Games;
+    for (int j = 1; j < choice; j++) {
+        prev = current;
+        current = current->next;
+    }
+
+    if (current != NULL) {
+        (*player)[loginKey]->Uang += current->price;
+        if (prev == NULL) {
+            (*player)[loginKey]->Games = current->next;
+        } else {
+            prev->next = current->next;
+        }
+        updateUangInFile((*player)[loginKey]->gamerTag, (*player)[loginKey]->Uang);
+        deleteGameFromFile((*player)[loginKey]->gamerTag, current->title);
+        free(current);
+
+        printf("Game refunded successfully! New balance: %.2f\n", (*player)[loginKey]->Uang);
+    } else {
+        printf("Error processing the refund.\n");
+    }
+
+    getch();
+}
+
+void deleteGameFromFile(const char *gamerTag, const char *gameTitle) {
+    FILE *file = fopen("games.txt", "r");
+    if (file == NULL) {
+        perror("Failed to open games.txt");
+        return;
+    }
+
+    char tempFilename[] = "temp_games.txt";
+    FILE *tempFile = fopen(tempFilename, "w");
+    if (tempFile == NULL) {
+        perror("Failed to open temporary file");
+        fclose(file);
+        return;
+    }
+
+    char buffer[1024];
+    char currentGamerTag[100];
+    char currentTitle[100];
+    int keepLine = 1;
+
+    while (fgets(buffer, sizeof(buffer), file) != NULL) {
+        if (sscanf(buffer, "GamerTag: %99[^;]; Game: %99[^,],", currentGamerTag, currentTitle) == 2) {
+            if (strcmp(currentGamerTag, gamerTag) == 0 && strcmp(currentTitle, gameTitle) == 0) {
+                keepLine = 0;
+            } else {
+                keepLine = 1;
+            }
+        }
+
+        if (keepLine) {
+            fprintf(tempFile, "%s", buffer);
+        }
+    }
+
+    fclose(file);
+    fclose(tempFile);
+
+    remove("games.txt");
+    rename(tempFilename, "games.txt");
 }
 
 // Function untuk menu utama library game
@@ -106,9 +214,11 @@ void libraryMenu(user **player[], int loginKey, NodeGames *Shop){
         printf(" +-----+-------------------------------------------+\n");
         printf(" |  7. | Top Up Uang                               |\n");
         printf(" +-----+-------------------------------------------+\n");
-        printf(" |  8. | Redeem Uang                               |\n");
+        printf(" |  8. | Redeem Wallet                             |\n");
         printf(" +-----+-------------------------------------------+\n");
-        printf(" |  9. | Logging Out                               |\n");
+        printf(" |  9. | Refund Game                               |\n");
+        printf(" +-----+-------------------------------------------+\n");
+        printf(" |  10.| Logout dari Akun                          |\n");
         printf(" +-----+-------------------------------------------+\n");
         printf("Pilih Opsi: "); scanf("%d", &pilihan);
 
@@ -146,8 +256,12 @@ void libraryMenu(user **player[], int loginKey, NodeGames *Shop){
             break;
 
             // Pilihan keluar dari menu ini
-            case 9 :
+            case 10 :
             trigger = 1;
+            break;
+
+            case 9 : 
+            refundGame(player, loginKey);
             break;
 
             case 7 : 
